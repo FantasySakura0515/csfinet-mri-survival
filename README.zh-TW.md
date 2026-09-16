@@ -1,6 +1,6 @@
 # CSFINet-Based Multimodal MRI Image Segmentation and Survival Prediction
 
-[English](README.md) · [重現指南](docs/reproduction.md) · [v2.0.0 模型權重](https://github.com/FantasySakura0515/csfinet-mri-survival/releases/tag/v2.0.0)
+[English](README.md) · [重現指南](docs/reproduction.md) · [v2.0.1 模型權重](https://github.com/FantasySakura0515/csfinet-mri-survival/releases/tag/v2.0.1)
 
 本專案實作 BraTS 2020 的兩階段研究流程：先以 CSFINet 或 U-Net 分割四模態 MRI，再將全腫瘤遮罩、四個遮罩內 MRI 通道及可選的臨床特徵用於生存天數迴歸。Gradient SHAP 與本機 Streamlit 檢視器提供結果檢查功能。
 

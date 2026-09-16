@@ -259,9 +259,14 @@ def test_checkpoint_payload_adds_pending_stats_only_when_given():
 
 def test_completed_v2_config_matches_the_frozen_cohort_and_declared_training_options():
     config = json.loads((ROOT / "configs/reconstruction-v21.json").read_text(encoding="utf-8"))
-    frozen = json.loads((ROOT / "data/manifests/cohort/split-config.json").read_text(encoding="utf-8"))
-    for key in ("seed", "split", "nifti", "normalization"):
-        assert config[key] == frozen[key]
+    frozen = json.loads((ROOT / "data/splits/identity.json").read_text(encoding="utf-8"))
+    assert config["seed"] == frozen["seed"]
+    assert config["split"] == {"test_patients": frozen["test"],
+                               "validation_patients": frozen["validation"],
+                               "validation_seed": frozen["validation_seed"]}
+    survival = json.loads((ROOT / "configs/survival-v2.json").read_text(encoding="utf-8"))
+    for key in ("nifti", "normalization"):
+        assert config[key] == survival[key]
     settings = config["segmentation"]
     assert settings["loss"] == "dice_ce"
     assert settings["update_policy"] == "per_patient"

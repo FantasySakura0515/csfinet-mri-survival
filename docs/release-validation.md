@@ -1,6 +1,6 @@
 # Release validation
 
-The v2.0.0 package was checked on 17 September 2026.
+The v2.0.1 package was checked on 17 September 2026.
 
 - A fresh Python 3.10 environment installed `pip install -e ".[all]"` successfully; `pip check` reported no broken requirements.
 - All 114 data-free tests passed, including 10 subtests. The suite covers models, statistics, preprocessing, protocol guards, download integrity and source-only split validation.

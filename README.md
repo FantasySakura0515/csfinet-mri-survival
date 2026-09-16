@@ -1,6 +1,6 @@
 # CSFINet-Based Multimodal MRI Image Segmentation and Survival Prediction
 
-[繁體中文](README.zh-TW.md) · [Reproduction guide](docs/reproduction.md) · [v2.0.0 weights](https://github.com/FantasySakura0515/csfinet-mri-survival/releases/tag/v2.0.0)
+[繁體中文](README.zh-TW.md) · [Reproduction guide](docs/reproduction.md) · [v2.0.1 weights](https://github.com/FantasySakura0515/csfinet-mri-survival/releases/tag/v2.0.1)
 
 Research implementation of a two-stage BraTS 2020 pipeline: four-modality MRI segmentation with CSFINet or U-Net, followed by survival-day regression using a whole-tumor mask, four masked MRI channels, and optional clinical features. Gradient SHAP and a local Streamlit viewer support inspection of the results.
 

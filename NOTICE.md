@@ -14,4 +14,4 @@ The source and weights are publicly available. No additional general reuse or re
 
 ## Cite the work
 
-Cite the accompanying manuscript by its unchanged title and authors above. A publication DOI is not asserted in this release. For the exact software version, cite the repository and its `v2.0.0` release. Cite the original CSFINet architecture and the BraTS dataset sources separately when relevant.
+Cite the accompanying manuscript by its unchanged title and authors above. A publication DOI is not asserted in this release. For the exact software version, cite the repository and its `v2.0.1` release. Cite the original CSFINet architecture and the BraTS dataset sources separately when relevant.
