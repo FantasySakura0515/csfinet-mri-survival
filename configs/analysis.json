@@ -1,0 +1,31 @@
+{
+  "protocol": "brats2020-paper-analysis-v2",
+  "bootstrap_seed": 20260914,
+  "bootstrap_resamples": 10000,
+  "gradient_shap": {
+    "seed": 20260916,
+    "baseline": "all_zero_normalized_MRI",
+    "n_samples": 32,
+    "stdev": 0.05,
+    "multiply_by_inputs": true,
+    "targets": [
+      "ground_truth_WT_region",
+      "predicted_WT_region"
+    ],
+    "slice_eligibility": "fixed_target_region_nonempty",
+    "modality_aggregation_visual": "signed_sum",
+    "quantitative_magnitude": "sum_absolute_across_modalities",
+    "visual_normalization": "per_slice_symmetric_max_absolute_to_minus1_plus1",
+    "perturbation_steps": 20,
+    "perturbation_baseline": "all_zero_normalized_MRI",
+    "auc": "trapezoid_raw_fixed_region_WT_probability_over_fraction",
+    "randomization_samples": 8,
+    "randomization_slice": "largest_ground_truth_WT_slice",
+    "randomization_stages": [
+      "head",
+      "decoder",
+      "piu_swin",
+      "encoder"
+    ]
+  }
+}

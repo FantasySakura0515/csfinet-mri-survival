@@ -1,0 +1,52 @@
+{
+  "status": "completed",
+  "scope": "inference_variant_decision_on_38_validation_patients_before_test",
+  "tag": "v2",
+  "adopted": "tta",
+  "rule": "Adopt the non-raw variant with the highest mean validation WT Dice averaged over both models, provided it is non-inferior to raw for each model; ties prefer the simpler variant (earlier in the VARIANTS order); otherwise keep raw.",
+  "raw_cross_model_mean_WT_dice": 0.819621933303051,
+  "candidates": [
+    {
+      "variant": "lcc",
+      "cross_model_mean_WT_dice": 0.8161082603082239,
+      "non_inferior_for_every_model": false,
+      "improves_cross_model_mean": false
+    },
+    {
+      "variant": "tta",
+      "cross_model_mean_WT_dice": 0.8210071637817181,
+      "non_inferior_for_every_model": true,
+      "improves_cross_model_mean": true
+    },
+    {
+      "variant": "tta_lcc",
+      "cross_model_mean_WT_dice": 0.8155755689521507,
+      "non_inferior_for_every_model": false,
+      "improves_cross_model_mean": false
+    },
+    {
+      "variant": "bn",
+      "cross_model_mean_WT_dice": 0.817563000355638,
+      "non_inferior_for_every_model": false,
+      "improves_cross_model_mean": false
+    },
+    {
+      "variant": "bn_lcc",
+      "cross_model_mean_WT_dice": 0.8199709065607523,
+      "non_inferior_for_every_model": false,
+      "improves_cross_model_mean": true
+    },
+    {
+      "variant": "bn_tta",
+      "cross_model_mean_WT_dice": 0.8194334574186641,
+      "non_inferior_for_every_model": false,
+      "improves_cross_model_mean": false
+    },
+    {
+      "variant": "bn_tta_lcc",
+      "cross_model_mean_WT_dice": 0.820701183639301,
+      "non_inferior_for_every_model": false,
+      "improves_cross_model_mean": true
+    }
+  ]
+}

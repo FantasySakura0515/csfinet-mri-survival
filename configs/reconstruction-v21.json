@@ -1,0 +1,146 @@
+{
+  "protocol": "brats2020-paper-reconstruction-v21",
+  "historical_recovery": false,
+  "seed": 20260914,
+  "split": {
+    "test_patients": 47,
+    "validation_patients": 38,
+    "validation_seed": 20260915
+  },
+  "nifti": {
+    "dataset": "awsaf49/brats20-dataset-training-validation",
+    "version": 1,
+    "shape": [
+      240,
+      240,
+      155
+    ],
+    "modalities": [
+      "flair",
+      "t1",
+      "t1ce",
+      "t2"
+    ],
+    "labels": [
+      0,
+      1,
+      2,
+      4
+    ]
+  },
+  "normalization": {
+    "scope": "patient_modality_full_volume_including_background",
+    "ddof": 0,
+    "epsilon": 1e-08
+  },
+  "segmentation": {
+    "channels": [
+      64,
+      128,
+      256,
+      512,
+      1024
+    ],
+    "swin_depths": [
+      2,
+      2,
+      6
+    ],
+    "swin_heads": [
+      4,
+      8,
+      16
+    ],
+    "window_size": 7,
+    "drop_path": 0.1,
+    "piu_dim": 512,
+    "piu_heads": 8,
+    "piu_dropout": 0.1,
+    "piu_attention": "scaled_dot_product",
+    "piu_grouping": "local_windows_4_2_1",
+    "fiu": "shared_flow_dual_warp_then_CBR",
+    "align_corners": true,
+    "slice_batch": 20,
+    "patient_batch": 1,
+    "loss": "dice_ce",
+    "update_policy": "per_patient",
+    "optimizer": "Adam",
+    "learning_rate": 0.0004,
+    "weight_decay": 0.0005,
+    "lr_schedule": {
+      "kind": "cosine",
+      "warmup_epochs": 1,
+      "final_fraction": 0.05
+    },
+    "max_epochs": 30,
+    "patience": 8,
+    "selection_metric": "validation_mean_patient_WT_Dice",
+    "selection_tolerance": 0.0,
+    "refit_all_188": true,
+    "mixed_precision": "float16",
+    "augmentation": {
+      "flip_axes": [
+        -2,
+        -1
+      ],
+      "intensity_scale": [
+        0.9,
+        1.1
+      ],
+      "intensity_shift": [
+        -0.1,
+        0.1
+      ]
+    },
+    "activation_checkpoint": true
+  },
+  "declared_inference": {
+    "postprocess": "largest_connected_component_WT",
+    "tta": "in_plane_flips",
+    "batchnorm_recalibration": "training_only_images"
+  },
+  "survival": {
+    "image_shape_DHW": [
+      155,
+      128,
+      128
+    ],
+    "cnn_channels": [
+      16,
+      32,
+      64
+    ],
+    "embedding": 128,
+    "clinical_hidden": [
+      32,
+      16
+    ],
+    "clinical_dropout_after": "first_hidden",
+    "dropout": 0.3,
+    "image_head": [
+      128,
+      128,
+      64,
+      32,
+      1
+    ],
+    "fusion_head": [
+      144,
+      64,
+      32,
+      1
+    ],
+    "output": "Softplus",
+    "loss": "Huber",
+    "huber_delta": 365,
+    "optimizer": "Adam",
+    "learning_rate": 0.0001,
+    "weight_decay": 0.0005,
+    "batch_size": 2,
+    "max_epochs": 200,
+    "patience": 25,
+    "selection_metric": "validation_MAE",
+    "training_mask": "ground_truth_WT",
+    "test_mask": "predicted_CSFINet_WT"
+  }
+}

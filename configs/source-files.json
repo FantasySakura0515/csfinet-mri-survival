@@ -1,0 +1,12 @@
+{
+  "dataset": "awsaf49/brats2020-training-data",
+  "version": 3,
+  "max_file_bytes": 10000000,
+  "files": [
+    {"path": "BraTS2020_training_data/content/data/survival_info.csv", "sha256": "ed5479d2b2afc9e49fef44bd43d4d15efce3b56bc5997a4eba7adc076b4b9a40"},
+    {"path": "BraTS2020_training_data/content/data/name_mapping.csv", "sha256": "5b95a69f0ef7c33a6f387da9a5d64b88f011294ab73990495fca1c2dee9de7b2"},
+    {"path": "BraTS2020_training_data/content/data/meta_data.csv", "sha256": "1b34a7a9e875bcf5343c96be91398fe678d126ed08bef2db5976672ca8fab74b"},
+    {"path": "BraTS2020_training_data/content/data/volume_100_slice_100.h5", "sha256": "2d3d91e9709990747cffea58565241aad7dba9b1ab1c2a21153602d420c9fef0"},
+    {"path": "BraTS20 Training Metadata.csv", "sha256": "003c5f6fc87e043c62dabe19101d1a6948dc737a3fe2ddd668ba6e8b7cf9e983"}
+  ]
+}

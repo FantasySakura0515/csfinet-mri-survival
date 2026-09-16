@@ -1,0 +1,8 @@
+* text=auto
+*.json text eol=lf
+*.py text eol=lf
+*.sh text eol=lf
+*.md text eol=lf
+*.csv text eol=lf
+# Training provenance hashes refer to the exact archived configuration bytes.
+configs/*.json -text

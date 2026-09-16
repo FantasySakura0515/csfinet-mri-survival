@@ -1,0 +1,12 @@
+{
+  "seed": 20260914,
+  "validation_seed": 20260915,
+  "patients": 235,
+  "train": 188,
+  "test": 47,
+  "development_train": 150,
+  "validation": 38,
+  "clinical_patient_csv_sha256": "c2bf84f0c7b62186a4021ff8ed398baf78ae8f8cdd32c9f40f529d8e14b3bf48",
+  "id_split_sha256": "1eb6c784e449324c1e4af87bc023973db242b29329d31d5eac0932d181bd3acb",
+  "note": "Clinical values are excluded. Reconstruct the clinical CSV locally from the pinned source files."
+}
