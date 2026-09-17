@@ -1,6 +1,6 @@
 # Reproduction guide
 
-[English overview](../README.md) · [繁體中文總覽](../README.zh-TW.md)
+[English overview](../README.md#english) · [繁體中文總覽](../README.md#繁體中文)
 
 Run commands from the repository root after installing `python -m pip install -e ".[all]"` in an activated environment. The commands below work in PowerShell and Bash because each command is on one line. Use Python 3.10 with PyTorch 2.7.1 and torchvision 0.22.1; select a compatible CPU or CUDA build from the [official PyTorch version matrix](https://pytorch.org/get-started/previous-versions/#v271). Training requires CUDA, while the release evaluator also accepts CPU.
 
