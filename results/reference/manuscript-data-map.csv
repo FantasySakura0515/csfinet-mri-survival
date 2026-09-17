@@ -1,0 +1,12 @@
+manuscript,file,scope
+Table 5,segmentation-raw.csv,"raw segmentation means, SDs and pointwise BCa intervals"
+Table 5b,segmentation-tta.csv,"matched TTA means, SDs and pointwise BCa intervals"
+Tables 5 and 5b paired panels,segmentation-paired-tests.csv,paired effects and Holm families A/C
+Table 7,survival-v2mask-fixed.csv,six-model errors and correlations
+Table 7 paired panel,survival-paired-tests.csv,eight neural/reference comparisons
+Sections 3.3.4-3.3.6 supporting table,survival-dispersion.csv,prediction dispersion and associations
+Figures 8-9,figure8-9-bin-counts.csv,aggregate displayed bins; intervals follow the figure labels
+Figures 10-11,figure10-11-correlations.csv,displayed aggregate correlations
+Table 9,shap.csv,"localization, perturbation and correlation summaries"
+Table 9 target-area reference row,shap-area-reference.csv,aggregate spatially uniform reference
+Table 9 randomization panel,shap-randomization.csv,parameter randomization summaries

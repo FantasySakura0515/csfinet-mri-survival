@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "scope": "six_final_refit_models_for_v2_results",
+  "scope": "six_final_refit_models_for_internal_heldout_evaluation",
   "extraction_root": "repository root",
   "archives": [
     {
@@ -389,7 +389,7 @@
     "configs": "Not bundled; use byte-identical configs shipped with the repository"
   },
   "repository": "FantasySakura0515/csfinet-mri-survival",
-  "tag": "v2.0.2",
+  "tag": "v2.0.3",
   "license": "Apache-2.0",
   "license_scope": "Project-authored materials and six project-trained checkpoints; limited to rights held by contributors. Dataset and third-party rights are excluded."
 }

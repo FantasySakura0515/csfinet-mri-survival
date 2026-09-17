@@ -47,11 +47,11 @@ python scripts/download_weights.py --component all
 python scripts/download_weights.py --verify-only
 ```
 
-The downloader uses the tracked `release-manifest.json` and this repository's [v2.0.2 Release](https://github.com/FantasySakura0515/csfinet-mri-survival/releases/tag/v2.0.2), verifies checksums, and extracts into `runs/`. `--component segmentation` and `--component survival` select a subset. Checkpoints include the CSFINet/U-Net segmentation models and the four final survival configurations: `image`, `image_age`, `image_resection`, and `image_age_resection`.
+The downloader uses the tracked `release-manifest.json` and this repository's [v2.0.3 Release](https://github.com/FantasySakura0515/csfinet-mri-survival/releases/tag/v2.0.3), verifies checksums, and extracts into `runs/`. `--component segmentation` and `--component survival` select a subset. Checkpoints include the CSFINet/U-Net segmentation models and the four final survival configurations: `image`, `image_age`, `image_resection`, and `image_age_resection`.
 
-The four survival checkpoints retain their `v2mri` training provenance. Training and internal validation used GT whole-tumor masks. Their earlier evaluation used archived v1 predicted test masks; the manuscript's current `v2mask-fixed` analysis holds weights and fitted clinical transformations fixed and uses raw v2 CSFINet masks instead. The mask substitution also changes the four masked MRI channels.
+Training and internal validation of the four survival models used GT whole-tumor masks. Test evaluation holds weights and training-fitted clinical transformations fixed and uses raw CSFINet WT masks plus the four corresponding masked MRI channels. Run/configuration names remain stable so checkpoint provenance and hash verification continue to work.
 
-Use `evaluate_release.py` for this declared fixed-model reevaluation. The core `infer-survival` command intentionally checks the cache manifest associated with a training run; it must not be made to accept a different cache by editing hashes or run metadata. Core inference remains appropriate for newly trained models evaluated with their matching cache.
+Use `evaluate_release.py` for the released fixed-model evaluation. The core `infer-survival` command intentionally checks the cache manifest associated with a training run; it must not be made to accept a different cache by editing hashes or run metadata. Core inference remains appropriate for newly trained models evaluated with their matching cache.
 
 ## 3. Evaluate the released models
 
@@ -84,7 +84,7 @@ Limited runs write to `results/smoke/` and `artifacts/smoke/`, separate from ful
 
 The main reference values are WT Dice **0.7625/0.7373** for raw CSFINet/U-Net and **0.7664/0.7412** with matched TTA. Current fixed-model survival MAE is **256.50 days** for Image + Age + Resection Status versus **254.54 days** for age-only OLS. These are reported results of the recorded runs. Compare numerical differences with the evaluation settings and device recorded in the generated manifests before interpreting them as a model change.
 
-The survival reevaluation reuses a previously inspected test partition. Neither it nor retraining the same split constitutes external validation. All eight neural-versus-reference comparisons have Holm-adjusted p = 1.0 in the reported analysis. SHAP localization alone does not establish explanation fidelity; the reported parameter-randomization diagnostics retain substantial similarity.
+Model and method choices were fixed before test evaluation, as confirmed by the authors; completed training records show no overlap with the 47 test patients. This patient-disjoint internal held-out evaluation does not constitute external validation. All eight neural-versus-reference comparisons have Holm-adjusted p = 1.0 in the reported analysis. SHAP localization alone does not establish explanation fidelity; the reported parameter-randomization diagnostics retain substantial similarity.
 
 ## 4. Open the local viewer
 
@@ -96,7 +96,7 @@ The viewer reads locally generated raw MRI, segmentation masks, survival predict
 
 ## 5. Train new models
 
-Training produces a new run of the reconstructed protocol, not the missing historical experiment. Use separate directories so the released checkpoints and evaluation outputs remain traceable. The examples below use `runs/retrained/`, `results/retrained/` and `artifacts/retrained/`.
+Training produces a new run of the documented protocol. Use separate directories so the released checkpoints and evaluation outputs remain traceable. The examples below use `runs/retrained/`, `results/retrained/` and `artifacts/retrained/`.
 
 Use `configs/reconstruction-v21.json` for current segmentation. Its v2 protocol uses foreground Dice plus cross-entropy, spatial/intensity augmentation, warmup and cosine decay. Select duration on the 150/38 internal partition, then refit on 188 patients. The released runs selected 28 CSFINet epochs and 22 U-Net epochs; a new run should follow its own recorded validation selection rather than force those counts.
 
@@ -141,6 +141,11 @@ python scripts/evaluate_release.py --help
 - **CUDA unavailable:** verify the installed PyTorch build and driver. CPU evaluation is supported; training uses CUDA.
 - **Out of memory:** preserve the original run and use a separately documented configuration for any altered training settings. A successful smoke evaluation is not a guarantee that full training or SHAP will fit.
 
-The source repository and release weights provide the reconstructed implementation and fixed models. They do not establish exact recovery of the earlier manuscript's missing historical execution, external generalization, or clinical utility.
+The source repository and release weights provide the documented implementation and fixed models. External generalization and clinical utility remain unassessed.
 
 See [methods.md](methods.md) for the implementation choices, configuration scope and raw/TTA/mask-version distinctions, and [NOTICE.md](../NOTICE.md) for source attribution and license status.
+
+
+## 6. Rebuild aggregate segmentation statistics without inference
+
+After patient metrics exist, run `python scripts/summarize_results.py`. This writes `results/publication/segmentation-raw.csv`, `segmentation-tta.csv`, `segmentation-paired-tests.csv` and the seed/hash manifest. The full segmentation evaluator calls the same routine. These are the authoritative manuscript summaries; lower-level legacy report commands use their own seed schedules. No model training or MRI inference is performed by this summary command.

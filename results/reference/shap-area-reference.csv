@@ -1,0 +1,3 @@
+target,n_patients,mean,sample_sd,aggregation
+gt,47,0.022157279096339088,0.009444982411331257,equal-weight mean of within-patient eligible-slice area fractions
+predicted,47,0.026290814098737795,0.00906497803726647,equal-weight mean of within-patient eligible-slice area fractions

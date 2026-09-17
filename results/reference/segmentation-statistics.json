@@ -1,0 +1,370 @@
+{
+  "method": "patient-level mean; sample SD ddof=1; pointwise 95% BCa",
+  "n_resamples": 10000,
+  "base_seed": 20260914,
+  "paired_base_seed": 20260964,
+  "patient_order": "lexicographic patient_id",
+  "numpy": "1.26.4",
+  "scipy": "1.15.3",
+  "sources": [
+    {
+      "path": "segmentation/csfinet-test-v2/segmentation_patient_metrics.csv",
+      "sha256": "5d00cafb68cb8550a94013d7dc72e616bce122cdd08a4c8335cfda766a3868f2"
+    },
+    {
+      "path": "segmentation/unet-test-v2/segmentation_patient_metrics.csv",
+      "sha256": "55395a2f6eb9250248e6b0222a2b421d74b7be30640ad5dee6b07107e433f16f"
+    },
+    {
+      "path": "inference-variants/v2/test/per-variant/csfinet_tta_patient_metrics.csv",
+      "sha256": "4f466197a4712e8037054380c5f102ab90f113522c688e39ae0c0e5864e207e8"
+    },
+    {
+      "path": "inference-variants/v2/test/per-variant/unet_tta_patient_metrics.csv",
+      "sha256": "9d7e2b6d1dd7b7991bc5dd5f86812ef4aace18fc5809204de5e81f5c3d151bea"
+    }
+  ],
+  "interval_seeds": [
+    {
+      "variant": "raw",
+      "model": "csfinet",
+      "region": "WT",
+      "measure": "dice",
+      "seed": 20260914
+    },
+    {
+      "variant": "raw",
+      "model": "csfinet",
+      "region": "WT",
+      "measure": "precision",
+      "seed": 20260915
+    },
+    {
+      "variant": "raw",
+      "model": "csfinet",
+      "region": "WT",
+      "measure": "recall",
+      "seed": 20260916
+    },
+    {
+      "variant": "raw",
+      "model": "csfinet",
+      "region": "WT",
+      "measure": "iou",
+      "seed": 20260917
+    },
+    {
+      "variant": "raw",
+      "model": "csfinet",
+      "region": "TC",
+      "measure": "dice",
+      "seed": 20260917
+    },
+    {
+      "variant": "raw",
+      "model": "csfinet",
+      "region": "TC",
+      "measure": "precision",
+      "seed": 20260918
+    },
+    {
+      "variant": "raw",
+      "model": "csfinet",
+      "region": "TC",
+      "measure": "recall",
+      "seed": 20260919
+    },
+    {
+      "variant": "raw",
+      "model": "csfinet",
+      "region": "TC",
+      "measure": "iou",
+      "seed": 20260921
+    },
+    {
+      "variant": "raw",
+      "model": "csfinet",
+      "region": "ET",
+      "measure": "dice",
+      "seed": 20260920
+    },
+    {
+      "variant": "raw",
+      "model": "csfinet",
+      "region": "ET",
+      "measure": "precision",
+      "seed": 20260921
+    },
+    {
+      "variant": "raw",
+      "model": "csfinet",
+      "region": "ET",
+      "measure": "recall",
+      "seed": 20260922
+    },
+    {
+      "variant": "raw",
+      "model": "csfinet",
+      "region": "ET",
+      "measure": "iou",
+      "seed": 20260925
+    },
+    {
+      "variant": "raw",
+      "model": "unet",
+      "region": "WT",
+      "measure": "dice",
+      "seed": 20260923
+    },
+    {
+      "variant": "raw",
+      "model": "unet",
+      "region": "WT",
+      "measure": "precision",
+      "seed": 20260924
+    },
+    {
+      "variant": "raw",
+      "model": "unet",
+      "region": "WT",
+      "measure": "recall",
+      "seed": 20260925
+    },
+    {
+      "variant": "raw",
+      "model": "unet",
+      "region": "WT",
+      "measure": "iou",
+      "seed": 20260929
+    },
+    {
+      "variant": "raw",
+      "model": "unet",
+      "region": "TC",
+      "measure": "dice",
+      "seed": 20260926
+    },
+    {
+      "variant": "raw",
+      "model": "unet",
+      "region": "TC",
+      "measure": "precision",
+      "seed": 20260927
+    },
+    {
+      "variant": "raw",
+      "model": "unet",
+      "region": "TC",
+      "measure": "recall",
+      "seed": 20260928
+    },
+    {
+      "variant": "raw",
+      "model": "unet",
+      "region": "TC",
+      "measure": "iou",
+      "seed": 20260933
+    },
+    {
+      "variant": "raw",
+      "model": "unet",
+      "region": "ET",
+      "measure": "dice",
+      "seed": 20260929
+    },
+    {
+      "variant": "raw",
+      "model": "unet",
+      "region": "ET",
+      "measure": "precision",
+      "seed": 20260930
+    },
+    {
+      "variant": "raw",
+      "model": "unet",
+      "region": "ET",
+      "measure": "recall",
+      "seed": 20260931
+    },
+    {
+      "variant": "raw",
+      "model": "unet",
+      "region": "ET",
+      "measure": "iou",
+      "seed": 20260937
+    },
+    {
+      "variant": "tta",
+      "model": "csfinet",
+      "region": "WT",
+      "measure": "dice",
+      "seed": 20260932
+    },
+    {
+      "variant": "tta",
+      "model": "csfinet",
+      "region": "WT",
+      "measure": "precision",
+      "seed": 20260933
+    },
+    {
+      "variant": "tta",
+      "model": "csfinet",
+      "region": "WT",
+      "measure": "recall",
+      "seed": 20260934
+    },
+    {
+      "variant": "tta",
+      "model": "csfinet",
+      "region": "WT",
+      "measure": "iou",
+      "seed": 20260917
+    },
+    {
+      "variant": "tta",
+      "model": "csfinet",
+      "region": "TC",
+      "measure": "dice",
+      "seed": 20260935
+    },
+    {
+      "variant": "tta",
+      "model": "csfinet",
+      "region": "TC",
+      "measure": "precision",
+      "seed": 20260936
+    },
+    {
+      "variant": "tta",
+      "model": "csfinet",
+      "region": "TC",
+      "measure": "recall",
+      "seed": 20260937
+    },
+    {
+      "variant": "tta",
+      "model": "csfinet",
+      "region": "TC",
+      "measure": "iou",
+      "seed": 20260921
+    },
+    {
+      "variant": "tta",
+      "model": "csfinet",
+      "region": "ET",
+      "measure": "dice",
+      "seed": 20260938
+    },
+    {
+      "variant": "tta",
+      "model": "csfinet",
+      "region": "ET",
+      "measure": "precision",
+      "seed": 20260939
+    },
+    {
+      "variant": "tta",
+      "model": "csfinet",
+      "region": "ET",
+      "measure": "recall",
+      "seed": 20260940
+    },
+    {
+      "variant": "tta",
+      "model": "csfinet",
+      "region": "ET",
+      "measure": "iou",
+      "seed": 20260925
+    },
+    {
+      "variant": "tta",
+      "model": "unet",
+      "region": "WT",
+      "measure": "dice",
+      "seed": 20260941
+    },
+    {
+      "variant": "tta",
+      "model": "unet",
+      "region": "WT",
+      "measure": "precision",
+      "seed": 20260942
+    },
+    {
+      "variant": "tta",
+      "model": "unet",
+      "region": "WT",
+      "measure": "recall",
+      "seed": 20260943
+    },
+    {
+      "variant": "tta",
+      "model": "unet",
+      "region": "WT",
+      "measure": "iou",
+      "seed": 20260929
+    },
+    {
+      "variant": "tta",
+      "model": "unet",
+      "region": "TC",
+      "measure": "dice",
+      "seed": 20260944
+    },
+    {
+      "variant": "tta",
+      "model": "unet",
+      "region": "TC",
+      "measure": "precision",
+      "seed": 20260945
+    },
+    {
+      "variant": "tta",
+      "model": "unet",
+      "region": "TC",
+      "measure": "recall",
+      "seed": 20260946
+    },
+    {
+      "variant": "tta",
+      "model": "unet",
+      "region": "TC",
+      "measure": "iou",
+      "seed": 20260933
+    },
+    {
+      "variant": "tta",
+      "model": "unet",
+      "region": "ET",
+      "measure": "dice",
+      "seed": 20260947
+    },
+    {
+      "variant": "tta",
+      "model": "unet",
+      "region": "ET",
+      "measure": "precision",
+      "seed": 20260948
+    },
+    {
+      "variant": "tta",
+      "model": "unet",
+      "region": "ET",
+      "measure": "recall",
+      "seed": 20260949
+    },
+    {
+      "variant": "tta",
+      "model": "unet",
+      "region": "ET",
+      "measure": "iou",
+      "seed": 20260937
+    }
+  ],
+  "outputs": {
+    "segmentation-paired-tests.csv": "2851704b8e7e919a2c758b449fa4cdff7b6f6ea2746b9ca33b2413d7a456cb45",
+    "segmentation-raw.csv": "9cd87539e7d0351ccb64214f9f4aeedfb4d15979dd3de1118fc5dffe86bf66a6",
+    "segmentation-tta.csv": "cb936453e0fd351bed4f405766495b055e19b15e31b9e5b2a682752465fc6c62"
+  }
+}

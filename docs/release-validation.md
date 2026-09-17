@@ -1,5 +1,15 @@
 # Release validation
 
+## v2.0.3 statistics and reporting checks
+
+The consistency update was checked on 17 September 2026. All **121 data-free tests and 13 subtests passed**. New regression coverage compares the public summarizer against the manuscript reporting routine despite the additional IoU measure, reversed input files and reversed patient rows; it also checks aggregate-file hashes against the statistics manifest.
+
+All 36 Dice/precision/recall mean intervals and all 20 paired summary rows were recomputed from the recorded patient metrics. Shared means, sample SDs, interval endpoints and available raw/Holm-adjusted p values agree with the manuscript source to 1e-12. The correction changes 11 public Dice intervals at four decimal places, plus the affected precision/recall intervals. The manuscript's scientific results remain unchanged. See [statistical reconciliation](statistical-reconciliation.md).
+
+The current evaluation description is patient-disjoint internal held-out evaluation. The authors confirmed no test-score-driven model or method selection; 12 completed development/refit records support patient separation. [Evidence and limits](evaluation-design.json) distinguish record-based membership verification from author-confirmed decision chronology. No new external cohort is claimed.
+
+Additional aggregate CSVs cover survival dispersion, the displayed bins/correlations and the SHAP target-area reference. No dataset files or individual clinical/prediction records were added. The six checkpoints and their run metadata remain byte-identical to the preceding release. This update performs statistical recomputation and packaging, without model training or inference.
+
 ## v2.0.2 license and packaging checks
 
 The Apache 2.0 release was checked on 17 September 2026. All 118 data-free tests passed, including 13 subtests. The added checks cover license-document installation, tamper detection, invalid archive paths and agreement between the published manifest and repository notices.

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "csfinet-repro"
-version = "2.0.2"
+version = "2.0.3"
 description = "CSFINet multimodal MRI segmentation and survival research implementation"
 readme = "README.md"
 license = "Apache-2.0"

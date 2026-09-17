@@ -2,7 +2,7 @@
 
 **[English](#english) | [繁體中文](#繁體中文)**
 
-[Website / 線上展示](http://csfi-bmmissp.know-eng.net/) · [Model weights / 模型權重](https://github.com/FantasySakura0515/csfinet-mri-survival/releases/tag/v2.0.2) · [Reproduction guide / 重現指南](docs/reproduction.md)
+[Website / 線上展示](http://csfi-bmmissp.know-eng.net/) · [Model weights / 模型權重](https://github.com/FantasySakura0515/csfinet-mri-survival/releases/tag/v2.0.3) · [Reproduction guide / 重現指南](docs/reproduction.md)
 
 ---
 
@@ -31,9 +31,9 @@ Evaluation was conducted on a reconstructed cohort of 235 patients using a fixed
 
 Under the shared evaluation protocol, CSFINet achieved higher WT Dice than U-Net in both raw inference and matched test-time augmentation (TTA). The raw-inference paired mean difference was **0.0253** (95% BCa confidence interval: **0.0150–0.0402**; Holm-adjusted Wilcoxon *p* = **3.57 × 10⁻⁵**). The TTA configuration was selected on the internal validation partition and applied identically to both models. These findings support a segmentation advantage over the implemented U-Net comparator within the evaluated cohort and protocol. [Aggregate results and paired comparisons](results/reference/) provide the corresponding statistical summaries.
 
-The `v2mask-fixed` survival analysis constitutes a post-hoc evaluation of segmentation-derived input substitution: the four `v2mri` refit models and their fitted clinical transformations were held fixed while raw v2 CSFINet test masks and the corresponding masked MRI channels were substituted. The Image + Age + Resection Status configuration yielded the lowest MAE among the four neural models (**256.50 days**); age-only ordinary least squares yielded **254.54 days**. None of the eight neural-versus-reference error comparisons reached statistical significance after Holm correction. The incremental predictive value of the evaluated imaging–clinical combinations therefore remains unestablished relative to these reference models. This analysis reuses the previously inspected 47-patient test partition and is interpreted as exploratory evidence.
+Survival evaluation used fixed model weights and training-fitted clinical transformations. Training and internal validation used ground-truth WT masks; the held-out test inputs used raw CSFINet WT masks and the four correspondingly masked MRI channels. The Image + Age + Resection Status configuration yielded the lowest MAE among the four neural models (**256.50 days**); age-only ordinary least squares yielded **254.54 days**. None of the eight neural-versus-reference error comparisons reached statistical significance after Holm correction. The incremental predictive value of the evaluated imaging–clinical combinations therefore remains unestablished relative to these reference models.
 
-The repository implements a documented reconstruction of the study protocol; the earlier manuscript's unavailable historical partition, checkpoints and execution environment have not been recovered. Reproducibility is supported through explicit configurations, fixed partition identities and checkpoint verification, although retraining across numerical environments does not guarantee bitwise equivalence. The present findings establish an internally evaluated research implementation; external generalizability and clinical utility remain to be assessed.
+The study uses patient-disjoint internal held-out evaluation. The authors confirmed that model and method choices were determined before evaluating the 47 test patients, without test-score-driven adjustment or selection. Completed training records support the 150/38 development partition and 188-patient refit, with no overlap with the 47 test patients. External generalizability and clinical utility remain to be assessed. Explicit configurations, partition identities and checkpoint verification support reproducibility; retraining across numerical environments does not guarantee bitwise equivalence.
 
 ### Install
 
@@ -133,9 +133,9 @@ Project-authored code, documentation and configurations, together with the six p
 
 在共同評估流程下，CSFINet 於原始推論及採用相同測試時資料增強（test-time augmentation, TTA）的條件中，均取得較 U-Net 為高的 WT Dice。原始推論的配對平均差為 **0.0253**（95% BCa 信賴區間：**0.0150–0.0402**；Holm 校正後 Wilcoxon *p* = **3.57 × 10⁻⁵**）。TTA 配置由內部驗證資料選定，並一致套用於兩個模型。此結果支持 CSFINet 相較於本研究所實作 U-Net 的分割優勢，其推論範圍限定於所評估之研究群體與實驗流程。相關統計摘要詳見[彙整結果與配對比較](results/reference/)。
 
-`v2mask-fixed` 生存分析採事後的分割衍生輸入替換設計：固定四個 `v2mri` 最終模型的權重與既有臨床特徵轉換參數，替換為原始 v2 CSFINet 測試遮罩，並重建相應的遮罩內 MRI 通道。Image + Age + Resection Status 配置取得四個神經網路模型中最低的 MAE（**256.50 天**）；僅使用年齡之普通最小平方法的 MAE 為 **254.54 天**。八項神經網路與參考模型的誤差比較，於 Holm 校正後均未達統計顯著。因此，所評估影像與臨床特徵組合相較於參考模型的增額預測效益，仍未獲確立。此分析沿用先前已檢視的 47 位測試病人，結果定位為探索性證據。
+生存評估固定各模型的權重及訓練組擬合之臨床特徵轉換參數。訓練與內部驗證採用真實 WT 遮罩，保留測試集則使用原始推論的 CSFINet WT 遮罩及四種相應的遮罩內 MRI 通道。Image + Age + Resection Status 配置取得四個神經網路模型中最低的 MAE（**256.50 天**）；僅使用年齡之普通最小平方法的 MAE 為 **254.54 天**。八項神經網路與參考模型的誤差比較，於 Holm 校正後均未達統計顯著。因此，所評估影像與臨床特徵組合相較於參考模型的增額預測效益，仍未獲確立。
 
-本儲存庫實作具明確紀錄的研究流程重建，原稿所對應之歷史資料切分、模型權重與執行環境仍未恢復。實驗可重現性透過明確設定、固定分組識別及權重校驗加以支援；跨數值環境重新訓練，仍不保證逐位元一致。目前成果為經內部評估的研究實作，其外部泛化能力與臨床效用尚待後續驗證。
+本研究採病人層級隔離的內部保留測試集評估。作者確認，模型與方法均於評估 47 位測試病人前決定，未依測試成績調整模型或挑選方法；完成的訓練紀錄亦支持 150／38 人的開發切分與 188 人的最終訓練，均未包含測試組病人。外部泛化能力與臨床效用仍待後續驗證。明確設定、固定分組識別及權重校驗提供實驗重現依據，但跨數值環境重新訓練仍不保證逐位元一致。
 
 ### 安裝
 

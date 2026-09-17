@@ -100,7 +100,9 @@ def _format(value):
     return "NA" if value is None else f"{value:.4f}"
 
 
-def summarize_segmentation(inputs, output, seed=20260914, n_resamples=10000):
+def summarize_segmentation(inputs, output, seed=20260914, n_resamples=10000, publication_variant=None):
+    if publication_variant not in (None, 'raw', 'tta'):
+        raise ValueError('Publication variant must be raw or tta')
     rows = []
     for path in inputs:
         rows.extend(read_csv(path, ["run_id", "patient_id", "model", "region", "tp", "fp", "fn", *MEASURES]))
@@ -132,7 +134,12 @@ def summarize_segmentation(inputs, output, seed=20260914, n_resamples=10000):
             for measure in MEASURES:
                 observations = [values[(model, region, patient)][measure] for patient in sorted(expected_ids)]
                 summary = descriptive(observations)
-                ci = bca_mean_ci(observations, seed=seed + index, n_resamples=n_resamples)
+                # Preserve the manuscript's three-measure schedule. IoU must not
+                # shift subsequent Dice/precision/recall seeds.
+                offset = index
+                if publication_variant is not None and measure != 'iou':
+                    offset = (18 if publication_variant == 'tta' else 0) + models.index(model) * 9 + REGIONS.index(region) * 3 + MEASURES.index(measure)
+                ci = bca_mean_ci(observations, seed=seed + offset, n_resamples=n_resamples)
                 index += 1
                 detailed[model][region][measure] = dict(summary=summary, mean_ci=ci)
                 table_row[f"{measure}_mean"] = summary["mean"]
@@ -147,7 +154,8 @@ def summarize_segmentation(inputs, output, seed=20260914, n_resamples=10000):
     for measure in ("dice", "precision", "recall"):
         a = {patient: values[(left, "WT", patient)][measure] for patient in expected_ids}
         b = {patient: values[(right, "WT", patient)][measure] for patient in expected_ids}
-        paired["WT"][measure] = dict(difference=paired_difference(a, b, seed=seed + index, n_resamples=n_resamples),
+        offset = index if publication_variant is None else 50 + (5 if publication_variant == 'tta' else 0) + {'dice': 0, 'precision': 3, 'recall': 4}[measure]
+        paired["WT"][measure] = dict(difference=paired_difference(a, b, seed=seed + offset, n_resamples=n_resamples),
                                       wilcoxon=paired_wilcoxon(a, b))
         index += 1
     table_path = output / "table5.csv"

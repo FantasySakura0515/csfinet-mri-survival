@@ -71,7 +71,7 @@ def main():
         from csfinet_repro.segmentation import original_labels, predict_patient
         from csfinet_repro.inference_variants import predict_labels, FLIPS_TTA
         from csfinet_repro.metrics import region_metrics
-        from csfinet_repro.segmentation_evaluation import save_prediction, summarize_segmentation
+        from csfinet_repro.segmentation_evaluation import save_prediction
         config_path = ROOT / 'configs/reconstruction-v21.json'
         config = js(config_path)
         batch = args.slice_batch or config['segmentation']['slice_batch']
@@ -131,8 +131,8 @@ def main():
                 torch.cuda.empty_cache()
         write_csv(results / 'inference-variants/v2/test/test_patient_metrics.csv', combined, list(combined[0]))
         if not args.limit:
-            summarize_segmentation([results / f'segmentation/{m}-test-v2/segmentation_patient_metrics.csv' for m in ('csfinet', 'unet')], results / 'tables/v2/segmentation')
-            summarize_segmentation([results / f'inference-variants/v2/test/per-variant/{m}_tta_patient_metrics.csv' for m in ('csfinet', 'unet')], results / 'inference-variants/v2/test/table5b')
+            from summarize_results import summarize
+            summarize(results, results / 'publication')
 
     if args.stage in ('survival', 'all'):
         from csfinet_repro.models import SurvivalNet
@@ -191,11 +191,11 @@ def main():
                 print(f'Survival {i}/{len(tests)} {pid}', flush=True)
         write_csv(directory / 'survival_predictions.csv', output, list(output[0]))
         write_json(directory / 'manifest.json', dict(status='completed', **common, retrained=False,
-                   scope_note='Post-hoc input substitution on previously inspected test patients; fixed survival weights, raw v2 masks.',
+                   scope_note='Patient-disjoint internal held-out evaluation; fixed survival weights and training-fitted clinical transformations; raw CSFINet masks.',
                    segmentation_manifest_sha256=sha256(seg_manifest_path), predictions_sha256=sha256(directory / 'survival_predictions.csv')))
         if not args.limit:
             from csfinet_repro import report_v2 as report
-            experiments = [dict(name='v2mask-fixed', role='post_hoc_fixed_model_input_substitution', groups=report.load_survival_predictions(directory / 'survival_predictions.csv'))]
+            experiments = [dict(name='v2mask-fixed', role='internal_heldout_fixed_model_evaluation', groups=report.load_survival_predictions(directory / 'survival_predictions.csv'))]
             seeds = itertools.count(20260916)
             summary = report._survival_rows(experiments, seeds, 10000)
             write_csv(directory / 'survival_comparison.csv', summary, list(summary[0]))
@@ -203,7 +203,7 @@ def main():
             write_csv(directory / 'survival_degeneracy.csv', degeneracy, list(degeneracy[0]))
             paired = report._survival_comparisons(experiments, seeds, 10000)
             for row in paired:
-                row['role'] = 'post_hoc_reference_comparison'
+                row['role'] = 'heldout_reference_comparison'
             write_csv(directory / 'survival_paired_tests.csv', paired, list(paired[0]))
 
     if args.stage in ('shap', 'all'):

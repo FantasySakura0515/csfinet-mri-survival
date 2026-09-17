@@ -1,6 +1,6 @@
 # Source and model provenance
 
-This repository contains a paper-guided reimplementation for the manuscript **CSFINet-Based Multimodal MRI Image Segmentation and Survival Prediction** by Jia-Lien Hsu and Pei-Yu Yu. It includes an additional five-channel survival-regression workflow. It is not a recovered copy of the manuscript's historical code, data split or checkpoints, and is not the original CSFINet authors' implementation.
+This repository contains a paper-guided reimplementation for the manuscript **CSFINet-Based Multimodal MRI Image Segmentation and Survival Prediction** by Jia-Lien Hsu and Pei-Yu Yu. It includes an additional five-channel survival-regression workflow. It is not the original CSFINet authors' implementation.
 
 The CSFINet architecture is described by Yu Feng, Yuhao Zhan and Hao Zeng, “CSFINet: Cross-scale Feature Interaction for Medical Image Segmentation,” ICSIP 2023, pp. 207–211, [DOI: 10.1109/ICSIP57908.2023.10270856](https://doi.org/10.1109/ICSIP57908.2023.10270856). The [authors' repository](https://github.com/CSFINet/CSFINet/tree/836dcca3f88ba65f99417566fa1c35767f508533), commit `836dcca3f88ba65f99417566fa1c35767f508533`, was consulted. Upstream code and figures are not redistributed here. Swin components are imported from torchvision.
 
