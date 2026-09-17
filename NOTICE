@@ -1,0 +1,28 @@
+CSFINet-Based Multimodal MRI Image Segmentation and Survival Prediction
+Copyright 2026 The CSFINet MRI Survival contributors.
+
+Project-authored source code, documentation and configurations, together with
+the six project-trained checkpoint files identified in release-manifest.json,
+are licensed under the Apache License, Version 2.0. See LICENSE.
+This grant covers only rights held by the project contributors.
+
+Accompanying manuscript authors: Jia-Lien Hsu and Pei-Yu Yu.
+Repository: https://github.com/FantasySakura0515/csfinet-mri-survival
+
+Architecture reference:
+Yu Feng, Yuhao Zhan and Hao Zeng. CSFINet: Cross-scale Feature Interaction
+for Medical Image Segmentation. ICSIP 2023, pp. 207-211.
+https://doi.org/10.1109/ICSIP57908.2023.10270856
+The upstream repository was consulted at commit
+836dcca3f88ba65f99417566fa1c35767f508533:
+https://github.com/CSFINet/CSFINet
+This project is a paper-guided reimplementation; upstream source is not bundled.
+
+BraTS datasets and clinical metadata are not distributed or relicensed here.
+Their original terms and citation requirements remain applicable.
+https://www.med.upenn.edu/cbica/brats2020/data.html
+
+Third-party dependencies, including PyTorch, torchvision, Captum and Streamlit,
+retain their respective licenses and are not bundled with the source release.
+
+These notices identify provenance and do not add conditions to Apache 2.0.

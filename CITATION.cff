@@ -1,12 +1,13 @@
 cff-version: 1.2.0
 message: "Please cite the accompanying manuscript and the specific software release used. See NOTICE.md for architecture and dataset attribution."
 type: software
+license: Apache-2.0
 title: "CSFINet-Based Multimodal MRI Image Segmentation and Survival Prediction"
 authors:
   - family-names: Hsu
     given-names: Jia-Lien
   - family-names: Yu
     given-names: Pei-Yu
-version: 2.0.1
+version: 2.0.2
 repository-code: "https://github.com/FantasySakura0515/csfinet-mri-survival"
-url: "https://github.com/FantasySakura0515/csfinet-mri-survival/releases/tag/v2.0.1"
+url: "https://github.com/FantasySakura0515/csfinet-mri-survival/releases/tag/v2.0.2"

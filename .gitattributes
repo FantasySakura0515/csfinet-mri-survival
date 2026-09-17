@@ -6,3 +6,5 @@
 *.csv text eol=lf
 # Training provenance hashes refer to the exact archived configuration bytes.
 configs/*.json -text
+LICENSE text eol=lf
+NOTICE text eol=lf

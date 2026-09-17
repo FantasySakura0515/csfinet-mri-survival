@@ -1,5 +1,15 @@
 # Release validation
 
+## v2.0.2 license and packaging checks
+
+The Apache 2.0 release was checked on 17 September 2026. All 118 data-free tests passed, including 13 subtests. The added checks cover license-document installation, tamper detection, invalid archive paths and agreement between the published manifest and repository notices.
+
+Both repackaged weight archives were installed and verified with the release downloader. All six checkpoint files and sanitized run metadata retain their previous SHA-256 values; only archive packaging and licensing metadata changed. The Python wheel built successfully and includes the `Apache-2.0` SPDX expression, complete license and attribution documents.
+
+The licensing update does not rerun training or cohort inference. The scientific validation below describes the unchanged model and evaluation artifacts.
+
+## v2.0.1 scientific and integration checks
+
 The v2.0.1 package was checked on 17 September 2026.
 
 - A fresh Python 3.10 environment installed `pip install -e ".[all]"` successfully; `pip check` reported no broken requirements.

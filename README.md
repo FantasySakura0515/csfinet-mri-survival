@@ -2,7 +2,7 @@
 
 **[English](#english) | [繁體中文](#繁體中文)**
 
-[Website / 線上展示](http://csfi-bmmissp.know-eng.net/) · [Model weights / 模型權重](https://github.com/FantasySakura0515/csfinet-mri-survival/releases/tag/v2.0.1) · [Reproduction guide / 重現指南](docs/reproduction.md)
+[Website / 線上展示](http://csfi-bmmissp.know-eng.net/) · [Model weights / 模型權重](https://github.com/FantasySakura0515/csfinet-mri-survival/releases/tag/v2.0.2) · [Reproduction guide / 重現指南](docs/reproduction.md)
 
 ---
 
@@ -102,7 +102,7 @@ Tests check code behavior and validation rules. Reproducing the reported cohort 
 
 ### Attribution and license status
 
-See [NOTICE.md](NOTICE.md) for the manuscript authors, original CSFINet reference, implementation provenance and dependency notices. This is publicly available research source and weights; an open-source reuse license has not yet been selected. GitHub's citation panel uses [CITATION.cff](CITATION.cff).
+Project-authored code, documentation and configurations, together with the six project-trained model checkpoints, are distributed under the **[Apache License 2.0](LICENSE)**. Weight archives include the license and attribution notices. The grant covers project-contributor rights; datasets and third-party components retain their original terms. See [NOTICE.md](NOTICE.md) for the scope and provenance, [data-source licensing notes](docs/data-licensing.md) for dataset requirements, and [CITATION.cff](CITATION.cff) for scholarly citation information.
 
 [繁體中文 ↓](#繁體中文) · [Back to English ↑](#english)
 
@@ -204,6 +204,6 @@ python -m pytest -q
 
 ### 來源與授權狀態
 
-論文作者、原始 CSFINet 引用、實作來源與套件授權說明見 [NOTICE.md](NOTICE.md)。本專案公開研究程式與權重，目前尚未選定開源再利用授權。GitHub 引用功能使用 [CITATION.cff](CITATION.cff)。
+本專案自行撰寫的程式、文件與設定，以及六個自行訓練的模型權重，採 **[Apache License 2.0](LICENSE)** 發布。權重壓縮檔內附授權全文與來源聲明；授權範圍限於專案貢獻者所持有的權利，資料集與第三方元件仍適用各自原有條款。授權範圍與實作來源詳見 [NOTICE.md](NOTICE.md)，資料使用要求見[資料來源授權說明](docs/data-licensing.md)，學術引用資訊則由 [CITATION.cff](CITATION.cff) 提供。
 
 [回到繁體中文 ↑](#繁體中文) · [English ↑](#english)

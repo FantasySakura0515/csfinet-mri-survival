@@ -8,10 +8,14 @@ The release viewer is independently implemented and reads locally generated arti
 
 Dependencies, including PyTorch, torchvision, Captum and Streamlit, remain subject to their respective licenses. This repository does not bundle their source. BraTS data and metadata are downloaded separately and remain subject to their source terms; model availability does not grant rights to redistribute the dataset.
 
-## License status
+## License and scope
 
-The source and weights are publicly available. No additional general reuse or redistribution license is granted by this release; rights remain with the respective rights holders, subject to applicable law and GitHub's terms. An open-source license has not yet been selected. Do not interpret the absence of an upstream license, or the availability of a download, as an MIT license.
+Project-authored source code, documentation and configurations, together with the six project-trained checkpoint files identified in `release-manifest.json`, are licensed under the **Apache License, Version 2.0**. See [LICENSE](LICENSE) for the complete terms and [NOTICE](NOTICE) for attribution notices. The grant covers rights held by the project contributors; it does not relicense the original CSFINet implementation, third-party dependencies, BraTS images or clinical metadata.
+
+Each weight archive in the licensed release includes `LICENSE` and `NOTICE`. Redistribution must comply with Apache 2.0, including its applicable license, notice and modification-marking requirements. The research-use description in the documentation communicates the scope of experimental validation and does not impose an additional noncommercial restriction on the Apache-licensed project materials.
+
+Dataset access, use and citation remain governed by the original providers' terms. [Data-source licensing notes](docs/data-licensing.md) record the sources checked and distinguish the repository's license from dataset permissions. Requests to cite the accompanying manuscript are scholarly attribution guidance, not an additional condition of Apache 2.0.
 
 ## Cite the work
 
-Cite the accompanying manuscript by its unchanged title and authors above. A publication DOI is not asserted in this release. For the exact software version, cite the repository and its `v2.0.1` release. Cite the original CSFINet architecture and the BraTS dataset sources separately when relevant.
+Cite the accompanying manuscript by its unchanged title and authors above. A publication DOI is not asserted in this release. For the exact software version, cite the repository and its `v2.0.2` release. Cite the original CSFINet architecture and the BraTS dataset sources separately when relevant.

@@ -20,8 +20,13 @@ def digest(path):
 
 
 def archive_files(archive):
-    return {m[key]: m[sha] for m in archive['models']
-            for key, sha in [('checkpoint_path', 'checkpoint_sha256'), ('run_path', 'run_sha256')]}
+    files = {m[key]: m[sha] for m in archive['models']
+             for key, sha in [('checkpoint_path', 'checkpoint_sha256'), ('run_path', 'run_sha256')]}
+    for item in archive.get('license_files', []):
+        if item['path'] not in ('LICENSE', 'NOTICE') or item['path'] in files:
+            raise ValueError('Unexpected or duplicated license path')
+        files[item['path']] = item['sha256']
+    return files
 
 
 def install_archive(path, archive, root=ROOT):

@@ -47,7 +47,7 @@ python scripts/download_weights.py --component all
 python scripts/download_weights.py --verify-only
 ```
 
-The downloader uses the tracked `release-manifest.json` and this repository's [v2.0.1 Release](https://github.com/FantasySakura0515/csfinet-mri-survival/releases/tag/v2.0.1), verifies checksums, and extracts into `runs/`. `--component segmentation` and `--component survival` select a subset. Checkpoints include the CSFINet/U-Net segmentation models and the four final survival configurations: `image`, `image_age`, `image_resection`, and `image_age_resection`.
+The downloader uses the tracked `release-manifest.json` and this repository's [v2.0.2 Release](https://github.com/FantasySakura0515/csfinet-mri-survival/releases/tag/v2.0.2), verifies checksums, and extracts into `runs/`. `--component segmentation` and `--component survival` select a subset. Checkpoints include the CSFINet/U-Net segmentation models and the four final survival configurations: `image`, `image_age`, `image_resection`, and `image_age_resection`.
 
 The four survival checkpoints retain their `v2mri` training provenance. Training and internal validation used GT whole-tumor masks. Their earlier evaluation used archived v1 predicted test masks; the manuscript's current `v2mask-fixed` analysis holds weights and fitted clinical transformations fixed and uses raw v2 CSFINet masks instead. The mask substitution also changes the four masked MRI channels.
 

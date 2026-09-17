@@ -113,8 +113,18 @@
           }
         }
       ],
-      "size_bytes": 422026501,
-      "sha256": "851721d0386315659ac45500cb23c0e2813ee6ceb27b3b60cb98b89f5a3fc6fe"
+      "size_bytes": 393074174,
+      "sha256": "715169561d2119df97a4cf949cf848b39daa7f02e3b76bccd26a23853e9a30dd",
+      "license_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "path": "NOTICE",
+          "sha256": "de8ac078049e79f8666d216975aa0bb881a7e68251f2bc93a117acaf03717e55"
+        }
+      ]
     },
     {
       "filename": "survival-weights.zip",
@@ -344,8 +354,18 @@
           }
         }
       ],
-      "size_bytes": 1443876,
-      "sha256": "e13715efba09c0a3ab9099dfbff70542ed1b524200bf7ff9eb8050852d8332ff"
+      "size_bytes": 1441666,
+      "sha256": "4e81d8e915b2c93086c15c57c334296be812e52b924f0c635c2e8118e600fef1",
+      "license_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "path": "NOTICE",
+          "sha256": "de8ac078049e79f8666d216975aa0bb881a7e68251f2bc93a117acaf03717e55"
+        }
+      ]
     }
   ],
   "exclusion_policy": {
@@ -369,5 +389,7 @@
     "configs": "Not bundled; use byte-identical configs shipped with the repository"
   },
   "repository": "FantasySakura0515/csfinet-mri-survival",
-  "tag": "v2.0.1"
+  "tag": "v2.0.2",
+  "license": "Apache-2.0",
+  "license_scope": "Project-authored materials and six project-trained checkpoints; limited to rights held by contributors. Dataset and third-party rights are excluded."
 }

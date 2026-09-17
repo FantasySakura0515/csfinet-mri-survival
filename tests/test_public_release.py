@@ -68,6 +68,39 @@ class WeightArchiveTests(unittest.TestCase):
             weights.install_archive(self.path, archive, self.destination)
         self.assertEqual(list(self.destination.iterdir()), [])
 
+    def test_license_notices_install_and_verify_with_existing_copy(self):
+        notices = [('LICENSE', b'license fixture'), ('NOTICE', b'notice fixture')]
+        archive = self.archive(notices)
+        archive['license_files'] = [{'path': name, 'sha256': sha(content)}
+                                    for name, content in notices]
+        (self.destination / 'LICENSE').write_bytes(notices[0][1])
+        config = self.destination / 'configs/demo.json'
+        config.parent.mkdir()
+        config.write_bytes(b'{}')
+        weights.install_archive(self.path, archive, self.destination)
+        weights.verify_archive(archive, self.destination)
+        self.assertEqual((self.destination / 'NOTICE').read_bytes(), notices[1][1])
+        (self.destination / 'NOTICE').write_bytes(b'altered notice')
+        with self.assertRaisesRegex(ValueError, 'Installed file checksum'):
+            weights.verify_archive(archive, self.destination)
+
+    def test_invalid_or_duplicate_license_paths_rejected(self):
+        archive = self.archive()
+        for paths in [['../LICENSE'], ['runs/demo/final.pt'], ['LICENSE', 'LICENSE']]:
+            with self.subTest(paths=paths):
+                archive['license_files'] = [{'path': name, 'sha256': sha(b'')}
+                                            for name in paths]
+                with self.assertRaisesRegex(ValueError, 'license path'):
+                    weights.install_archive(self.path, archive, self.destination)
+                self.assertEqual(list(self.destination.iterdir()), [])
+
+    def test_corrupt_license_member_rejected(self):
+        archive = self.archive([('LICENSE', b'altered license')])
+        archive['license_files'] = [{'path': 'LICENSE', 'sha256': sha(b'license fixture')}]
+        with self.assertRaisesRegex(ValueError, 'Extracted file checksum'):
+            weights.install_archive(self.path, archive, self.destination)
+        self.assertFalse((self.destination / 'LICENSE').exists())
+
     def test_unlisted_or_duplicate_members_rejected(self):
         for extra in [[('data/raw/image.nii', b'not allowed')],
                       [('runs/demo/final.pt', b'duplicate')]]:
@@ -162,6 +195,14 @@ class PublishedSplitTests(unittest.TestCase):
             'csfinet', 'unet', 'image', 'image_age', 'image_resection', 'image_age_resection'})
         for model in models:
             self.assertEqual(weights.digest(ROOT / model['config_path']), model['config_sha256'])
+
+    def test_published_archives_pin_the_project_license_notices(self):
+        manifest = json.loads((ROOT / 'release-manifest.json').read_text())
+        self.assertEqual(manifest['license'], 'Apache-2.0')
+        for archive in manifest['archives']:
+            self.assertEqual({item['path'] for item in archive['license_files']}, {'LICENSE', 'NOTICE'})
+            for item in archive['license_files']:
+                self.assertEqual(weights.digest(ROOT / item['path']), item['sha256'])
 
 
 class EvaluationCliTests(unittest.TestCase):
