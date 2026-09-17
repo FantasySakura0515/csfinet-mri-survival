@@ -12,24 +12,28 @@
 
 **Online demo:** [CSFINet MRI and survival research website](http://csfi-bmmissp.know-eng.net/) — inspect MRI segmentation, survival predictions and Gradient SHAP results in your browser.
 
-Research implementation of a two-stage BraTS 2020 pipeline: four-modality MRI segmentation with CSFINet or U-Net, followed by survival-day regression using a whole-tumor mask, four masked MRI channels, and optional clinical features. Gradient SHAP and a local Streamlit viewer support inspection of the results.
+This repository accompanies a study of segmentation-guided multimodal representation learning for brain tumor delineation and survival estimation using BraTS 2020. The proposed analytical framework comprises two sequential stages: voxel-level tumor segmentation from four MRI modalities, followed by patient-level survival regression integrating tumor-restricted imaging representations with clinical covariates.
 
-This repository provides the source, configurations, patient-ID split definition, and checkpoint download tools. Model weights are distributed through this repository's GitHub Release. MRI data, clinical CSVs, patient predictions, and attribution artifacts are obtained or generated locally; they are not included in the public repository or weight archives.
+The segmentation stage adopts CSFINet to combine convolutional feature extraction with hierarchical Swin Transformer representations. Its Patch-wise Interaction Unit (PIU) facilitates information exchange among spatially corresponding feature patches across resolutions, while its Feature-wise Interaction Unit (FIU) performs learned flow-based alignment during feature reconstruction. Together, these operations provide a mechanism for integrating local spatial detail and contextual information across scales. U-Net serves as the comparator under a shared data partition and training protocol; [implementation details](docs/methods.md) document the architecture and reconstruction choices.
+
+For survival estimation, a three-dimensional convolutional encoder processes a five-channel representation comprising the whole-tumor (WT) mask and four tumor-masked MRI volumes. Four configurations evaluate the incorporation of age and resection status alongside imaging features. Gradient SHAP characterizes attribution distributions within fixed WT regions for the segmentation model, and the research viewer supports joint inspection of segmentation, survival estimates and attribution maps.
+
+The release provides source code, experiment configurations, a patient-identifier partition specification and pretrained checkpoints with recorded provenance. Model weights are distributed through the repository's GitHub Release. MRI volumes, individual clinical records, patient-level predictions and attribution arrays are acquired or generated locally and are excluded from the distributed artifacts.
 
 ### Reported results
 
-The reconstructed cohort contains 235 patients: 188 training and 47 test patients. Model selection uses a 150/38 partition within the training cohort, followed by refitting on all 188 training patients.
+Evaluation was conducted on a reconstructed cohort of 235 patients using a fixed patient-level partition of 188 training and 47 test cases. Within the training cohort, 150 patients were allocated to development training and 38 to internal validation for model selection. The selected training duration was subsequently used to refit each model on all 188 training patients. Segmentation performance is summarized by the mean patient-level WT Dice coefficient.
 
 | Segmentation model | Raw WT Dice | Matched flip-TTA WT Dice |
 | --- | ---: | ---: |
 | U-Net | 0.7373 | 0.7412 |
 | CSFINet | 0.7625 | 0.7664 |
 
-Both models use the same data partition and revised training protocol. TTA was selected using the internal validation patients and applied to both models. These are patient-level mean whole-tumor Dice scores, not a comparison with external challenge rankings.
+Under the shared evaluation protocol, CSFINet achieved higher WT Dice than U-Net in both raw inference and matched test-time augmentation (TTA). The raw-inference paired mean difference was **0.0253** (95% BCa confidence interval: **0.0150–0.0402**; Holm-adjusted Wilcoxon *p* = **3.57 × 10⁻⁵**). The TTA configuration was selected on the internal validation partition and applied identically to both models. These findings support a segmentation advantage over the implemented U-Net comparator within the evaluated cohort and protocol. [Aggregate results and paired comparisons](results/reference/) provide the corresponding statistical summaries.
 
-The current `v2mask-fixed` survival analysis uses the four frozen `v2mri` refit models with raw v2 CSFINet test masks. Image + Age + Resection Status has the lowest neural-model MAE, **256.50 days**, compared with **254.54 days** for age-only ordinary least squares. None of the eight neural-versus-reference error comparisons is significant after Holm correction. This post-hoc input substitution reuses the same 47 test patients; it is not retraining or an independent validation.
+The `v2mask-fixed` survival analysis constitutes a post-hoc evaluation of segmentation-derived input substitution: the four `v2mri` refit models and their fitted clinical transformations were held fixed while raw v2 CSFINet test masks and the corresponding masked MRI channels were substituted. The Image + Age + Resection Status configuration yielded the lowest MAE among the four neural models (**256.50 days**); age-only ordinary least squares yielded **254.54 days**. None of the eight neural-versus-reference error comparisons reached statistical significance after Holm correction. The incremental predictive value of the evaluated imaging–clinical combinations therefore remains unestablished relative to these reference models. This analysis reuses the previously inspected 47-patient test partition and is interpreted as exploratory evidence.
 
-The code reconstructs the documented study protocol. It does not recover the unavailable original manuscript's historical split, checkpoints, or training execution. Retraining and different numerical environments need not reproduce the released checkpoints bit for bit. The models are research tools and have not been validated for clinical use.
+The repository implements a documented reconstruction of the study protocol; the earlier manuscript's unavailable historical partition, checkpoints and execution environment have not been recovered. Reproducibility is supported through explicit configurations, fixed partition identities and checkpoint verification, although retraining across numerical environments does not guarantee bitwise equivalence. The present findings establish an internally evaluated research implementation; external generalizability and clinical utility remain to be assessed.
 
 ### Install
 
@@ -110,24 +114,28 @@ See [NOTICE.md](NOTICE.md) for the manuscript authors, original CSFINet referenc
 
 **線上展示：** [CSFINet MRI 分割與生存預測研究網站](http://csfi-bmmissp.know-eng.net/)，可在瀏覽器查看 MRI 分割、生存預測與 Gradient SHAP 結果。
 
-本專案實作 BraTS 2020 的兩階段研究流程：先以 CSFINet 或 U-Net 分割四模態 MRI，再將全腫瘤遮罩、四個遮罩內 MRI 通道及可選的臨床特徵用於生存天數迴歸。Gradient SHAP 與本機 Streamlit 檢視器提供結果檢查功能。
+本儲存庫提供以 BraTS 2020 為研究基礎之分割引導多模態表徵學習實作，探討腦腫瘤區域辨識與病人生存天數估計。整體分析架構由兩個依序銜接的階段構成：首先利用四種 MRI 模態進行體素層級的腫瘤分割，再將腫瘤區域限定的影像表徵與臨床共變項整合，建立病人層級的生存迴歸模型。
 
-公開儲存庫包含程式碼、設定、僅含病人識別碼的資料切分定義，以及權重下載工具。模型權重放在同一儲存庫的 GitHub Release。MRI、臨床 CSV、逐病人預測與歸因圖須在本機取得或產生，不包含在公開儲存庫或權重壓縮檔內。
+分割階段採用 CSFINet，結合卷積特徵擷取與階層式 Swin Transformer 表徵。其區塊層級交互單元（Patch-wise Interaction Unit, PIU）促進不同解析度下、空間位置相對應之特徵區塊的資訊交換；特徵層級交互單元（Feature-wise Interaction Unit, FIU）則於特徵重建過程中，透過可學習流場進行空間對齊。上述機制用以整合局部空間細節與跨尺度上下文資訊。研究以 U-Net 作為比較模型，採取共同的資料切分與訓練流程；架構設定及重建選擇詳見[方法說明](docs/methods.md)。
+
+生存估計階段以三維卷積編碼器處理五通道輸入，包含全腫瘤（whole tumor, WT）遮罩及四種腫瘤遮罩內的 MRI 影像，並透過四種配置評估年齡與切除狀態的納入方式。Gradient SHAP 用於分析分割模型在固定 WT 區域內的特徵歸因分布；研究檢視器則整合呈現分割結果、生存估計與歸因圖，以支援個案層級的結果檢視。
+
+公開內容涵蓋原始程式碼、實驗設定、僅含病人識別碼的資料切分定義，以及具來源紀錄的預訓練模型。模型權重由同一儲存庫的 GitHub Release 提供；MRI 體積影像、個別臨床紀錄、逐病人預測及歸因陣列，均由使用者於本機取得或產生，不納入發布檔案。
 
 ### 論文目前的結果
 
-重建的研究群體共 235 人，分成 188 位訓練病人及 47 位測試病人。188 人再分成 150/38 人供訓練及內部驗證選模，最後用全部 188 人重新擬合模型。
+本研究於重建之 235 位病人群體進行評估，採固定的病人層級切分，分別配置 188 位訓練病人與 47 位測試病人。訓練群體進一步劃分為 150 位開發訓練病人及 38 位內部驗證病人，據以選定訓練輪數，再以全部 188 位訓練病人重新擬合各模型。分割表現以逐病人 WT Dice 係數的平均值呈現。
 
 | 分割模型 | 原始推論 WT Dice | 相同翻轉 TTA 的 WT Dice |
 | --- | ---: | ---: |
 | U-Net | 0.7373 | 0.7412 |
 | CSFINet | 0.7625 | 0.7664 |
 
-兩個模型採用相同資料切分及修訂後的訓練流程。TTA 由內部驗證資料選定，再同時套用至兩個模型。表中為逐病人全腫瘤 Dice 的平均值，不能直接視為對外部競賽方法的排名。
+在共同評估流程下，CSFINet 於原始推論及採用相同測試時資料增強（test-time augmentation, TTA）的條件中，均取得較 U-Net 為高的 WT Dice。原始推論的配對平均差為 **0.0253**（95% BCa 信賴區間：**0.0150–0.0402**；Holm 校正後 Wilcoxon *p* = **3.57 × 10⁻⁵**）。TTA 配置由內部驗證資料選定，並一致套用於兩個模型。此結果支持 CSFINet 相較於本研究所實作 U-Net 的分割優勢，其推論範圍限定於所評估之研究群體與實驗流程。相關統計摘要詳見[彙整結果與配對比較](results/reference/)。
 
-目前的 `v2mask-fixed` 生存分析使用四個既有 `v2mri` 最終模型，固定權重後換入原始 v2 CSFINet 測試遮罩。Image + Age + Resection Status 的 MAE 為 **256.50 天**，是四個神經網路配置中最低的點估計；僅使用年齡的普通最小平方法為 **254.54 天**。八項神經網路與參考模型的誤差比較在 Holm 校正後均未達顯著。這是使用同一批 47 位測試病人的事後輸入替換分析，不是重新訓練，也不是獨立驗證。
+`v2mask-fixed` 生存分析採事後的分割衍生輸入替換設計：固定四個 `v2mri` 最終模型的權重與既有臨床特徵轉換參數，替換為原始 v2 CSFINet 測試遮罩，並重建相應的遮罩內 MRI 通道。Image + Age + Resection Status 配置取得四個神經網路模型中最低的 MAE（**256.50 天**）；僅使用年齡之普通最小平方法的 MAE 為 **254.54 天**。八項神經網路與參考模型的誤差比較，於 Holm 校正後均未達統計顯著。因此，所評估影像與臨床特徵組合相較於參考模型的增額預測效益，仍未獲確立。此分析沿用先前已檢視的 47 位測試病人，結果定位為探索性證據。
 
-本專案重建可查核的研究流程，並未恢復原始論文已缺失的歷史切分、權重或訓練執行環境。重新訓練或使用不同數值環境，不保證產生逐位元相同的權重。本模型供研究使用，尚未經臨床驗證。
+本儲存庫實作具明確紀錄的研究流程重建，原稿所對應之歷史資料切分、模型權重與執行環境仍未恢復。實驗可重現性透過明確設定、固定分組識別及權重校驗加以支援；跨數值環境重新訓練，仍不保證逐位元一致。目前成果為經內部評估的研究實作，其外部泛化能力與臨床效用尚待後續驗證。
 
 ### 安裝
 
