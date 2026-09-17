@@ -8,7 +8,7 @@ def result_status(project):
     root = Path(project)
     jobs = []
     for name in ("csfinet", "unet"):
-        directory = root / "results" / "segmentation" / f"{name}-test-v2"
+        directory = root / "results" / "segmentation" / f"{name}-test-study"
         path = directory / "inference-manifest.json"
         try:
             value = json.loads(path.read_text(encoding="utf-8"))

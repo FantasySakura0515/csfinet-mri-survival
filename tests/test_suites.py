@@ -21,7 +21,7 @@ def test_completed_requires_valid_json_status_and_expected_lineage(tmp_path):
 
 
 def test_survival_suite_validates_completed_run_and_checkpoint(tmp_path):
-    directory = tmp_path / "survival-image-development-v2"
+    directory = tmp_path / "survival-image-development-study"
     directory.mkdir()
     checkpoint = directory / "best.pt"
     checkpoint.write_bytes(b"checkpoint")
@@ -53,10 +53,10 @@ def test_delivery_suite_accepts_only_completed_matching_output(tmp_path):
     output.mkdir()
     manifest = output / "delivery-manifest.csv"
     manifest.write_text("path,sha256\n", encoding="utf-8")
-    audit = {"status": "completed", "tag": "v2", "manifest_sha256": sha256(manifest)}
+    audit = {"status": "completed", "tag": "study", "manifest_sha256": sha256(manifest)}
     write_json(output / "delivery-audit.json", audit)
-    assert completed_delivery(output, "v2") == audit
+    assert completed_delivery(output, "study") == audit
     audit["manifest_sha256"] = "bad"
     write_json(output / "delivery-audit.json", audit)
     with pytest.raises(ValueError, match="manifest validation"):
-        completed_delivery(output, "v2")
+        completed_delivery(output, "study")

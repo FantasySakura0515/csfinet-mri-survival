@@ -11,12 +11,12 @@ from .files import sha256, write_json
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", default="configs/reconstruction-v21.json")
+    parser.add_argument("--config", default="configs/segmentation.json")
     parser.add_argument("--patients", default="data/manifests/cohort/patients.csv")
     parser.add_argument("--audit", default="data/manifests/cohort/nifti-audit.json")
     parser.add_argument("--root", default="data/raw/brats2020-nifti")
     parser.add_argument("--runs", default="runs")
-    parser.add_argument("--tag", default="v2")
+    parser.add_argument("--tag", default="study")
     args = parser.parse_args()
     if not args.tag.isalnum():
         raise ValueError("Tag must be alphanumeric")

@@ -43,7 +43,7 @@ def main():
                 if sha256(args.source / name) != item['sha256']:
                     raise ValueError(f'Source hash mismatch: {name}')
         if not patients.exists():
-            create_split(args.source, ROOT / 'configs/reconstruction-v21.json', patients.parent)
+            create_split(args.source, ROOT / 'configs/segmentation.json', patients.parent)
     actual = verify(patients)
     print(f'Verified {len(actual)} patients: 188 training, 47 test; internal split 150/38.')
     print('Clinical values were reconstructed locally and are excluded from Git.')

@@ -68,7 +68,7 @@ def _claim_lock(path):
         stream.write(f"{os.getpid()}\n")
 
 
-def guard(config, patients, audit, root, runs, worktree, tag="v2", interval=30,
+def guard(config, patients, audit, root, runs, worktree, tag="study", interval=30,
           max_restarts=3, state=None):
     paths = [Path(value).resolve() for value in (config, patients, audit, root, runs, worktree)]
     config, patients, audit, root, runs, worktree = paths
@@ -146,7 +146,7 @@ def main():
     parser.add_argument("--root", required=True)
     parser.add_argument("--runs", required=True)
     parser.add_argument("--worktree", required=True)
-    parser.add_argument("--tag", default="v2")
+    parser.add_argument("--tag", default="study")
     parser.add_argument("--interval", type=int, default=30)
     parser.add_argument("--max-restarts", type=int, default=3)
     parser.add_argument("--state")

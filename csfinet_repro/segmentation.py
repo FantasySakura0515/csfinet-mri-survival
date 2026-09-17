@@ -44,7 +44,7 @@ def checkpoint_payload(model, optimizer, scaler, rng, epoch, best_epoch, best_sc
                    epoch=epoch, best_epoch=best_epoch, best_score=best_score, history=history, identity=identity,
                    stage=stage, pending_losses=pending_losses)
     if pending_stats is not None:
-        # v2 only: per-epoch optimizer step counters completed before validation; payloads without counters keep their keys.
+        # study only: per-epoch optimizer step counters completed before validation; payloads without counters keep their keys.
         payload["pending_stats"] = pending_stats
     return payload
 
@@ -73,10 +73,10 @@ def train_segmentation(config_path, patient_csv, root, output, name, phase, epoc
     if selection_tolerance < 0:
         raise ValueError("Selection tolerance must be non-negative")
     epoch_learning_rate(settings["learning_rate"], 1, settings["max_epochs"], lr_schedule)
-    protocol_v2 = None
+    protocol_study = None
     if (loss_name != "four_class_cross_entropy" or update_policy != "per_patient" or augmentation
             or lr_schedule or selection_tolerance):
-        protocol_v2 = dict(loss=loss_name, update_policy=update_policy, augmentation=augmentation,
+        protocol_study = dict(loss=loss_name, update_policy=update_policy, augmentation=augmentation,
                            lr_schedule=lr_schedule, schedule_horizon_epochs=settings["max_epochs"],
                            base_learning_rate=settings["learning_rate"], selection_tolerance=selection_tolerance,
                            amp_overflow_policy=("skip_update_and_halve_scale" if update_policy == "per_slice_batch"
@@ -140,8 +140,8 @@ def train_segmentation(config_path, patient_csv, root, output, name, phase, epoc
     resume_stage, pending_losses, pending_stats = "epoch_complete", None, None
     execution = dict(amp="float16", grad_scaler_initial_scale=1024, tf32=False, data_loader_workers=0,
                      cudnn_benchmark=False, cudnn_deterministic=True, activation_checkpoint=settings.get("activation_checkpoint", False))
-    if protocol_v2:
-        execution["protocol_v2"] = protocol_v2
+    if protocol_study:
+        execution["protocol_study"] = protocol_study
     manifest = dict(**identity, status="running", seed=config["seed"],
                     git_commit=subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
                     training_ids=[r["patient_id"] for r in training], validation_ids=[r["patient_id"] for r in validation],
@@ -203,13 +203,13 @@ def train_segmentation(config_path, patient_csv, root, output, name, phase, epoc
                     # Augmentation draws follow the permutation on the same checkpointed rng, so --resume replays them.
                     loss = train_patient(model, optimizer, scaler, images, targets, settings["slice_batch"], device,
                                          loss_name=loss_name, update_policy=update_policy, augmentation=augmentation,
-                                         rng=rng, stats=epoch_stats if protocol_v2 else None)
+                                         rng=rng, stats=epoch_stats if protocol_study else None)
                     losses.append(loss)
                     del images, targets
                     print(f"{name}/{phase} epoch={epoch} patient={position}/{len(training)} id={patient} {loss_label}={loss:.6f}", flush=True)
                 pending = checkpoint_payload(model, optimizer, scaler, rng, epoch, best_epoch, best_score,
                                              history, identity, stage="validation_pending", pending_losses=losses,
-                                             pending_stats=epoch_stats if protocol_v2 else None)
+                                             pending_stats=epoch_stats if protocol_study else None)
                 manifest["pending_checkpoint_sha256"] = atomic_checkpoint(output / "pending.pt", pending)
                 manifest.update(pending_epoch=epoch, pending_stage="validation")
                 write_json(output / "run.json", manifest)
@@ -253,7 +253,7 @@ def train_segmentation(config_path, patient_csv, root, output, name, phase, epoc
                 manifest["best_checkpoint_sha256"] = atomic_checkpoint(output / "best.pt", model.state_dict())
             entry = dict(epoch=epoch, mean_train_CE=float(np.mean(losses)), validation_WT_Dice=score,
                          elapsed_seconds=time.perf_counter() - started)
-            if protocol_v2:
+            if protocol_study:
                 entry.update(learning_rate=optimizer.param_groups[0]["lr"], **epoch_stats)
             history.append(entry)
             payload = checkpoint_payload(model, optimizer, scaler, rng, epoch, best_epoch, best_score, history,

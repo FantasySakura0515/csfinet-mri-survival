@@ -26,7 +26,7 @@ RELEASE_ARTIFACTS = {
     "external-artifacts.csv",
     "delivery-audit.json",
     "delivery-manifest.csv",
-    "manuscript-replacements.md",
+    "study-results.md",
     "manuscript-claim-audit.csv",
 }
 
@@ -145,7 +145,7 @@ def validate_release(output, tag, split_sha):
     return manifest
 
 
-def create_release(project_root=".", tag="v2", output=None):
+def create_release(project_root=".", tag="study", output=None):
     if not tag.isalnum():
         raise ValueError("Tag must be alphanumeric")
     root = Path(project_root).resolve()
@@ -191,7 +191,7 @@ def create_release(project_root=".", tag="v2", output=None):
         external_path = staging / "external-artifacts.csv"
         write_csv(external_path, large, ["path", "role", "bytes", "sha256", "source_manifest"])
         copied = (audit_path, inventory_path,
-                  delivery_dir / "manuscript-replacements.md",
+                  delivery_dir / "study-results.md",
                   delivery_dir / "manuscript-claim-audit.csv")
         if (delivery_dir / "README_FIRST.md").exists():
             copied += (delivery_dir / "README_FIRST.md",)

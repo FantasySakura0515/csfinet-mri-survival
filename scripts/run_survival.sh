@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
-# Declared v2 survival experiment: whole-tumor mask plus masked MRI intensities as input.
+# Declared study survival experiment: whole-tumor mask plus masked MRI intensities as input.
 # Training uses ground-truth masks; test inputs use the selected frozen segmentation predictions.
-# cache -> four variants development/refit -> six-model frozen-test inference -> Table 7 (v2mri).
-# Usage: bash scripts/run_v2_survival.sh [project_root] [python] [raw_root] [segmentation_tag]
+# cache -> four variants development/refit -> six-model frozen-test inference -> Table 7 (survival).
+# Usage: bash scripts/run_survival.sh [project_root] [python] [raw_root] [segmentation_tag]
 set -euo pipefail
 
 root="${1:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 python_bin="${2:-$root/.venv/bin/python}"
 raw="${3:-$root/data/raw/brats2020-nifti}"
-segmentation_tag="${4:-v2}"
-tag="v2mri"
-config="configs/survival-v2.json"
+segmentation_tag="${4:-study}"
+tag="survival"
+config="configs/survival.json"
 patients="data/manifests/cohort/patients.csv"
 cd "$root"
 
 if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
-  echo "tracked files are modified; commit the v2 protocol before launching" >&2
+  echo "tracked files are modified; commit the study protocol before launching" >&2
   exit 3
 fi
-echo "survival v2 launch commit: $(git rev-parse HEAD); test masks from CSFINet ${segmentation_tag}"
+echo "survival study launch commit: $(git rev-parse HEAD); test masks from CSFINet ${segmentation_tag}"
 
 cache="data/cache/survival-${tag}"
 predictions="artifacts/segmentation/csfinet-test-${segmentation_tag}"
@@ -58,4 +58,4 @@ fi
 if [[ ! -f "results/tables/${tag}/survival/table7.json" ]]; then
   "$python_bin" -m csfinet_repro summarize-survival-table --input "$output" --output "results/tables/${tag}/survival"
 fi
-echo "V2_SURVIVAL_DONE $(date --iso-8601=seconds)"
+echo "STUDY_SURVIVAL_DONE $(date --iso-8601=seconds)"

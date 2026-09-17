@@ -47,9 +47,9 @@ python scripts/download_weights.py --component all
 python scripts/download_weights.py --verify-only
 ```
 
-The downloader uses the tracked `release-manifest.json` and this repository's [v2.0.3 Release](https://github.com/FantasySakura0515/csfinet-mri-survival/releases/tag/v2.0.3), verifies checksums, and extracts into `runs/`. `--component segmentation` and `--component survival` select a subset. Checkpoints include the CSFINet/U-Net segmentation models and the four final survival configurations: `image`, `image_age`, `image_resection`, and `image_age_resection`.
+The downloader uses the tracked `release-manifest.json` and this repository's [publication archive](https://github.com/FantasySakura0515/csfinet-mri-survival/releases/tag/publication-20260917), verifies checksums, and extracts into `runs/`. `--component segmentation` and `--component survival` select a subset. Checkpoints include the CSFINet/U-Net segmentation models and the four final survival configurations: `image`, `image_age`, `image_resection`, and `image_age_resection`.
 
-Training and internal validation of the four survival models used GT whole-tumor masks. Test evaluation holds weights and training-fitted clinical transformations fixed and uses raw CSFINet WT masks plus the four corresponding masked MRI channels. Run/configuration names remain stable so checkpoint provenance and hash verification continue to work.
+Training and internal validation of the four survival models used GT whole-tumor masks. Test evaluation holds weights and training-fitted clinical transformations fixed and uses raw CSFINet WT masks plus the four corresponding masked MRI channels. The release manifest records the configuration and checkpoint hashes used for verification.
 
 Use `evaluate_release.py` for the released fixed-model evaluation. The core `infer-survival` command intentionally checks the cache manifest associated with a training run; it must not be made to accept a different cache by editing hashes or run metadata. Core inference remains appropriate for newly trained models evaluated with their matching cache.
 
@@ -67,9 +67,9 @@ Add `--resume` to continue an interrupted stage only when its recorded inputs an
 
 | Stage | Main local output |
 | --- | --- |
-| Segmentation | `results/segmentation/csfinet-test-v2/` and `unet-test-v2/`; prediction NIfTIs under `artifacts/segmentation/` |
-| Survival | `results/survival/v2mask-fixed/`, including the six-model patient prediction CSV |
-| SHAP | `results/explainability/v2/` and per-patient attribution files under `artifacts/explainability/v2/` |
+| Segmentation | `results/segmentation/csfinet-test-study/` and `unet-test-study/`; prediction NIfTIs under `artifacts/segmentation/` |
+| Survival | `results/survival/survival-heldout/`, including the six-model patient prediction CSV |
+| SHAP | `results/explainability/study/` and per-patient attribution files under `artifacts/explainability/study/` |
 
 The segmentation stage evaluates raw and matched in-plane flip TTA for both models. The reported TTA decision uses the internal validation set. Survival and SHAP use **raw CSFINet** output, not TTA masks. SHAP explains fixed GT-WT and predicted-WT segmentation targets, not the survival model.
 
@@ -84,7 +84,7 @@ Limited runs write to `results/smoke/` and `artifacts/smoke/`, separate from ful
 
 The main reference values are WT Dice **0.7625/0.7373** for raw CSFINet/U-Net and **0.7664/0.7412** with matched TTA. Current fixed-model survival MAE is **256.50 days** for Image + Age + Resection Status versus **254.54 days** for age-only OLS. These are reported results of the recorded runs. Compare numerical differences with the evaluation settings and device recorded in the generated manifests before interpreting them as a model change.
 
-Model and method choices were fixed before test evaluation, as confirmed by the authors; completed training records show no overlap with the 47 test patients. This patient-disjoint internal held-out evaluation does not constitute external validation. All eight neural-versus-reference comparisons have Holm-adjusted p = 1.0 in the reported analysis. SHAP localization alone does not establish explanation fidelity; the reported parameter-randomization diagnostics retain substantial similarity.
+Model and method choices were fixed before test evaluation; the training and internal-validation groups exclude the 47 test patients. This patient-disjoint internal held-out evaluation does not constitute external validation. All eight neural-versus-reference comparisons have Holm-adjusted p = 1.0 in the reported analysis. SHAP localization alone does not establish explanation fidelity; the reported parameter-randomization diagnostics retain substantial similarity.
 
 ## 4. Open the local viewer
 
@@ -98,32 +98,32 @@ The viewer reads locally generated raw MRI, segmentation masks, survival predict
 
 Training produces a new run of the documented protocol. Use separate directories so the released checkpoints and evaluation outputs remain traceable. The examples below use `runs/retrained/`, `results/retrained/` and `artifacts/retrained/`.
 
-Use `configs/reconstruction-v21.json` for current segmentation. Its v2 protocol uses foreground Dice plus cross-entropy, spatial/intensity augmentation, warmup and cosine decay. Select duration on the 150/38 internal partition, then refit on 188 patients. The released runs selected 28 CSFINet epochs and 22 U-Net epochs; a new run should follow its own recorded validation selection rather than force those counts.
+Use `configs/segmentation.json` for current segmentation. Its study protocol uses foreground Dice plus cross-entropy, spatial/intensity augmentation, warmup and cosine decay. Select duration on the 150/38 internal partition, then refit on 188 patients. The released runs selected 28 CSFINet epochs and 22 U-Net epochs; a new run should follow its own recorded validation selection rather than force those counts.
 
 ```bash
-python -m csfinet_repro train-segmentation --config configs/reconstruction-v21.json --model csfinet --phase development --output runs/retrained/csfinet-development
-python -m csfinet_repro train-segmentation --config configs/reconstruction-v21.json --model csfinet --phase refit --selection runs/retrained/csfinet-development/run.json --output runs/retrained/csfinet-refit
-python -m csfinet_repro infer-segmentation --config configs/reconstruction-v21.json --run runs/retrained/csfinet-refit --output results/retrained/csfinet-test --predictions artifacts/retrained/csfinet-test
-python -m csfinet_repro train-segmentation --config configs/reconstruction-v21.json --model unet --phase development --output runs/retrained/unet-development
-python -m csfinet_repro train-segmentation --config configs/reconstruction-v21.json --model unet --phase refit --selection runs/retrained/unet-development/run.json --output runs/retrained/unet-refit
-python -m csfinet_repro infer-segmentation --config configs/reconstruction-v21.json --run runs/retrained/unet-refit --output results/retrained/unet-test --predictions artifacts/retrained/unet-test
+python -m csfinet_repro train-segmentation --config configs/segmentation.json --model csfinet --phase development --output runs/retrained/csfinet-development
+python -m csfinet_repro train-segmentation --config configs/segmentation.json --model csfinet --phase refit --selection runs/retrained/csfinet-development/run.json --output runs/retrained/csfinet-refit
+python -m csfinet_repro infer-segmentation --config configs/segmentation.json --run runs/retrained/csfinet-refit --output results/retrained/csfinet-test --predictions artifacts/retrained/csfinet-test
+python -m csfinet_repro train-segmentation --config configs/segmentation.json --model unet --phase development --output runs/retrained/unet-development
+python -m csfinet_repro train-segmentation --config configs/segmentation.json --model unet --phase refit --selection runs/retrained/unet-development/run.json --output runs/retrained/unet-refit
+python -m csfinet_repro infer-segmentation --config configs/segmentation.json --run runs/retrained/unet-refit --output results/retrained/unet-test --predictions artifacts/retrained/unet-test
 python -m csfinet_repro summarize-segmentation --input results/retrained/csfinet-test/segmentation_patient_metrics.csv --input results/retrained/unet-test/segmentation_patient_metrics.csv --output results/retrained/segmentation-table
 ```
 
 The inference commands above perform **raw** evaluation. They do not silently add TTA. A separate validation/test inference-variant workflow is available through `python -m csfinet_repro validate-inference-variants --help` and `evaluate-inference-variants --help`; it expects its documented run-directory layout.
 
-Use `configs/survival-v2.json` for the five-channel survival models. Its embedded legacy segmentation block is not the configuration for current v2 segmentation. Build a fresh cache from the new CSFINet predictions and train all four configurations:
+Use `configs/survival.json` for the five-channel survival models. Its embedded segmentation block is not the configuration for current study segmentation. Build a fresh cache from the new CSFINet predictions and train all four configurations:
 
 ```bash
 python -m csfinet_repro cache-survival-mri --predictions artifacts/retrained/csfinet-test --segmentation-manifest results/retrained/csfinet-test/inference-manifest.json --output data/cache/survival-retrained
-python -m csfinet_repro.survival_suite --config configs/survival-v2.json --cache data/cache/survival-retrained --runs runs/retrained --tag localv2
-python -m csfinet_repro infer-survival --config configs/survival-v2.json --cache data/cache/survival-retrained --image-run runs/retrained/survival-image-refit-localv2 --image-age-run runs/retrained/survival-image_age-refit-localv2 --image-resection-run runs/retrained/survival-image_resection-refit-localv2 --image-age-resection-run runs/retrained/survival-image_age_resection-refit-localv2 --output results/retrained/survival/survival_predictions.csv
+python -m csfinet_repro.survival_suite --config configs/survival.json --cache data/cache/survival-retrained --runs runs/retrained --tag local
+python -m csfinet_repro infer-survival --config configs/survival.json --cache data/cache/survival-retrained --image-run runs/retrained/survival-image-refit-local --image-age-run runs/retrained/survival-image_age-refit-local --image-resection-run runs/retrained/survival-image_resection-refit-local --image-age-resection-run runs/retrained/survival-image_age_resection-refit-local --output results/retrained/survival/survival_predictions.csv
 python -m csfinet_repro summarize-survival-table --input results/retrained/survival/survival_predictions.csv --output results/retrained/survival-table
 ```
 
 The cache uses GT masks for training/validation and predicted masks for test patients. Its five channels are WT and masked FLAIR, T1, T1ce and T2, with volume shape `5 × 155 × 128 × 128`. Clinical preprocessing is fitted only on the applicable training partition. Mean-survival and age-only OLS references use the 188 training patients.
 
-The training suite records provenance and resumes verified completed runs. If you change the data, configuration or mask source, create a new cache and run directory rather than reusing an incompatible completed run. The core table command produces the comparisons documented in its output; results from newly trained models must not be labeled as the released `v2mask-fixed` analysis.
+The training suite records provenance and resumes verified completed runs. If you change the data, configuration or mask source, create a new cache and run directory rather than reusing an incompatible completed run. The core table command produces the comparisons documented in its output; results from newly trained models must not be labeled as the released `survival-heldout` analysis.
 
 ## Checks and troubleshooting
 
@@ -148,4 +148,4 @@ See [methods.md](methods.md) for the implementation choices, configuration scope
 
 ## 6. Rebuild aggregate segmentation statistics without inference
 
-After patient metrics exist, run `python scripts/summarize_results.py`. This writes `results/publication/segmentation-raw.csv`, `segmentation-tta.csv`, `segmentation-paired-tests.csv` and the seed/hash manifest. The full segmentation evaluator calls the same routine. These are the authoritative manuscript summaries; lower-level legacy report commands use their own seed schedules. No model training or MRI inference is performed by this summary command.
+After patient metrics exist, run `python scripts/summarize_results.py`. This writes `results/publication/segmentation-raw.csv`, `segmentation-tta.csv`, `segmentation-paired-tests.csv` and the seed/hash manifest. The full segmentation evaluator calls the same routine. These are the authoritative manuscript summaries; other reporting utilities may use different seed schedules. No model training or MRI inference is performed by this summary command.

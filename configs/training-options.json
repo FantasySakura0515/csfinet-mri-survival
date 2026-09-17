@@ -1,6 +1,5 @@
 {
-  "protocol": "brats2020-paper-reconstruction-v2-survival",
-  "historical_recovery": false,
+  "protocol": "brats2020-training-options",
   "seed": 20260914,
   "split": {
     "test_patients": 47,
@@ -62,17 +61,42 @@
     "align_corners": true,
     "slice_batch": 20,
     "patient_batch": 1,
-    "loss": "four_class_cross_entropy",
+    "loss": "dice_ce",
+    "update_policy": "per_slice_batch",
     "optimizer": "Adam",
     "learning_rate": 0.0004,
     "weight_decay": 0.0005,
-    "max_epochs": 100,
-    "patience": 15,
+    "lr_schedule": {
+      "kind": "cosine",
+      "warmup_epochs": 1,
+      "final_fraction": 0.05
+    },
+    "max_epochs": 30,
+    "patience": 8,
     "selection_metric": "validation_mean_patient_WT_Dice",
+    "selection_tolerance": 0.0,
     "refit_all_188": true,
     "mixed_precision": "float16",
-    "augmentation": false,
+    "augmentation": {
+      "flip_axes": [
+        -2,
+        -1
+      ],
+      "intensity_scale": [
+        0.9,
+        1.1
+      ],
+      "intensity_shift": [
+        -0.1,
+        0.1
+      ]
+    },
     "activation_checkpoint": true
+  },
+  "declared_inference": {
+    "postprocess": "largest_connected_component_WT",
+    "tta": "in_plane_flips",
+    "batchnorm_recalibration": "training_only_images"
   },
   "survival": {
     "image_shape_DHW": [
@@ -116,8 +140,6 @@
     "patience": 25,
     "selection_metric": "validation_MAE",
     "training_mask": "ground_truth_WT",
-    "test_mask": "predicted_CSFINet_WT",
-    "input_channels": 5,
-    "input_kind": "wt_mask_and_masked_mri_area_resized_128"
+    "test_mask": "predicted_CSFINet_WT"
   }
 }

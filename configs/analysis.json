@@ -1,5 +1,5 @@
 {
-  "protocol": "brats2020-paper-analysis-v2",
+  "protocol": "brats2020-paper-analysis-study",
   "bootstrap_seed": 20260914,
   "bootstrap_resamples": 10000,
   "gradient_shap": {

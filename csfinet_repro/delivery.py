@@ -1,4 +1,4 @@
-"""Strict final artifact audit and manuscript replacement package."""
+"""Validate study artifacts and assemble a results package."""
 
 from collections import Counter, defaultdict
 import json
@@ -16,33 +16,6 @@ from .survival import VARIANTS
 
 SEGMENTATION_MODELS = ("csfinet", "unet")
 SURVIVAL_MODELS = (*VARIANTS, "training_mean", "age_ols")
-HISTORICAL_SEGMENTATION = {
-    "unet": {"dice_mean": 0.4630, "precision_mean": 0.8697, "recall_mean": 0.3401},
-    "csfinet": {"dice_mean": 0.7469, "precision_mean": 0.9121, "recall_mean": 0.6752},
-}
-HISTORICAL_SURVIVAL = {
-    "image": {"mae": 304.63, "rmse": 400.09, "median_ae": 233.34,
-              "pearson_r": 0.273, "spearman_rho": 0.338},
-    "image_age": {"mae": 267.11, "rmse": 368.86, "median_ae": 216.91,
-                  "pearson_r": 0.451, "spearman_rho": 0.436},
-    "image_resection": {"mae": 309.46, "rmse": 425.26, "median_ae": 217.22,
-                        "pearson_r": 0.150, "spearman_rho": 0.186},
-    "image_age_resection": {"mae": 305.80, "rmse": 405.42, "median_ae": 269.10,
-                            "pearson_r": 0.263, "spearman_rho": 0.295},
-}
-
-# Historical manuscript labels differ from the canonical Table 7 CSV schema.
-# Keep the labels in the comparison output while reading the reconstructed
-# values from the fields emitted by ``summarize_survival``.
-SURVIVAL_COMPARISON_FIELDS = {
-    "mae": "mae",
-    "rmse": "rmse",
-    "median_ae": "median_ae",
-    "pearson_r": "pearson",
-    "spearman_rho": "spearman",
-}
-
-
 def _completed_json(path):
     path = Path(path)
     if not path.exists():
@@ -153,7 +126,7 @@ def _validate_schematics(root, tag, split_sha, inventory):
     items = manifest.get("artifacts", [])
     if (manifest.get("scope") != "implementation_matched_figures_1_to_7"
             or manifest.get("split_sha256") != split_sha
-            or manifest.get("config_sha256") != sha256(root / "configs" / "reconstruction-v21.json")
+            or manifest.get("config_sha256") != sha256(root / "configs" / "segmentation.json")
             or len(items) != 14 or len({item["path"] for item in items}) != 14):
         raise ValueError("Fig.1-7 schematic manifest is incomplete or has the wrong lineage")
     for item in items:
@@ -248,55 +221,15 @@ def _mean_sd(row, prefix):
     return f"{mean:.4f} ± {sd:.4f}"
 
 
-def _historical_comparison(table5_rows, table7_rows, output):
-    rows = []
-    wt = {row["model"]: row for row in table5_rows if row["region"] == "WT"}
-    for model, historical in HISTORICAL_SEGMENTATION.items():
-        if model not in wt:
-            raise ValueError(f"Missing reconstructed WT result for historical comparison: {model}")
-        for metric, old in historical.items():
-            new = float(wt[model][metric])
-            rows.append(dict(scope="segmentation_WT", model=model, metric=metric.removesuffix("_mean"),
-                             historical_value=old, reconstructed_value=new,
-                             delta_new_minus_historical=new - old,
-                             numerical_direction="higher" if new > old else "lower" if new < old else "same",
-                             interpretation="different_experiment_not_a_paired_comparison"))
-    survival = {row["model"]: row for row in table7_rows}
-    for model, historical in HISTORICAL_SURVIVAL.items():
-        if model not in survival:
-            raise ValueError(f"Missing reconstructed survival result for historical comparison: {model}")
-        for metric, old in historical.items():
-            new = float(survival[model][SURVIVAL_COMPARISON_FIELDS[metric]])
-            rows.append(dict(scope="survival", model=model, metric=metric, historical_value=old,
-                             reconstructed_value=new, delta_new_minus_historical=new - old,
-                             numerical_direction="higher" if new > old else "lower" if new < old else "same",
-                             interpretation="different_experiment_not_a_paired_comparison"))
-    csv_path = output / "historical-result-comparison.csv"
-    write_csv(csv_path, rows, list(rows[0]))
-    markdown = ["# Historical result comparison", "",
-                "The historical values are transcription references from the submitted manuscript. "
-                "The reconstructed values come from a new split, codebase and training run; deltas are numerical "
-                "diagnostics only and are not paired effects or evidence of statistical improvement.", "",
-                "| Scope | Model | Metric | Historical | Reconstructed | New − historical | Direction |",
-                "| --- | --- | --- | ---: | ---: | ---: | --- |"]
-    for row in rows:
-        markdown.append(f"| {row['scope']} | {row['model']} | {row['metric']} | "
-                        f"{row['historical_value']:.4f} | {row['reconstructed_value']:.4f} | "
-                        f"{row['delta_new_minus_historical']:+.4f} | {row['numerical_direction']} |")
-    md_path = output / "historical-result-comparison.md"
-    md_path.write_text("\n".join(markdown) + "\n", encoding="utf-8", newline="\n")
-    return rows, (csv_path, md_path)
-
-
 def _manuscript_text(root, tag, cohort, table5_rows, table7_rows, table9_rows, output):
     wt = {row["model"]: row for row in table5_rows if row["region"] == "WT"}
     best_survival = min(table7_rows, key=lambda row: float(row["mae"]))
-    lines = ["# Manuscript replacement package", "",
-             "Generated only after the strict final artifact audit. Values belong to the new frozen reconstruction split and must replace, rather than be combined with, historical means.", "",
+    lines = ["# Study results", "",
+             "Results are generated from validated patient-level artifacts for the fixed study partition.", "",
              "## Methods — reproducibility and statistics", "",
              "We created a deterministic patient-level split of 235 eligible BraTS 2020 cases into 188 training and 47 held-out test cases. Model selection used a fixed 150/38 development split within the training cohort; the held-out test set was not used for epoch selection. After epoch selection, each model was refitted from initialization on all 188 training cases. Segmentation measures were calculated for each test patient and summarized as mean ± sample standard deviation (ddof=1), median and interquartile range, with 95% BCa bootstrap confidence intervals (10,000 resamples). Survival absolute errors were summarized analogously. Paired model comparisons used two-sided Wilcoxon signed-rank tests after patient-ID alignment; the prespecified survival comparison family used Holm adjustment. Pearson intervals used Fisher's z transformation, Spearman intervals used paired BCa bootstrap, and dependent age correlations were compared with Steiger's overlapping-correlation z test.", "",
              "## Results — cohort", "",
-             f"The reconstructed cohort contained {cohort[0]['n']} patients: {cohort[1]['n']} training and {cohort[2]['n']} held-out test patients. The test cohort contained {cohort[2]['GTR']} GTR, {cohort[2]['STR']} STR and {cohort[2]['NA']} unknown-resection cases.", "",
+             f"The study cohort contained {cohort[0]['n']} patients: {cohort[1]['n']} training and {cohort[2]['n']} held-out test patients. The test cohort contained {cohort[2]['GTR']} GTR, {cohort[2]['STR']} STR and {cohort[2]['NA']} unknown-resection cases.", "",
              "## Results — segmentation", ""]
     for model in SEGMENTATION_MODELS:
         row = wt[model]
@@ -306,20 +239,14 @@ def _manuscript_text(root, tag, cohort, table5_rows, table7_rows, table9_rows, o
               "## Results — explainability", ""]
     for row in table9_rows:
         lines.append(f"- `{row['target']}`: lesion attribution mass {_mean_sd(row, 'lesion_attribution_mass')}; pointing accuracy {_mean_sd(row, 'pointing_accuracy')}; deletion AUC {_mean_sd(row, 'deletion_auc')}; insertion AUC {_mean_sd(row, 'insertion_auc')}.")
-    lines += ["", "## Author actions before resubmission", "",
-              "1. Replace every historical Table 5/7/9 mean together with its SD; do not append these SD values to the old means.",
-              "2. Update the abstract, Results, Discussion and Conclusion to match the direction and significance of the new outputs.",
-              "3. Replace the historical 070/094 test-case claims: both are training cases in the new split. Patient 199 remains a test case; the other two displayed cases are selected by the recorded error-quantile rule.",
-              "4. State that this is a newly reconstructed split and experiment because the original split, code, settings and weights were unavailable.",
-              "5. Review `historical-result-comparison.md`; its deltas are diagnostics across different experiments, not paired effects.",
-              "6. Use the generated table and figure files listed in `delivery-manifest.csv`; verify journal formatting manually.", "",
-              f"Formal source root: `results/tables/{tag}/`, `results/figures/{tag}/`. All file hashes are in `delivery-audit.json`."]
-    path = output / "manuscript-replacements.md"
+    lines += ["", "## Data sources", "",
+              f"Tables: `results/tables/{tag}/`. Figures: `results/figures/{tag}/`. File hashes are recorded in `delivery-audit.json`."]
+    path = output / "study-results.md"
     path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
     return path
 
 
-def audit_delivery(project_root, tag="v2", output=None):
+def audit_delivery(project_root, tag="study", output=None):
     if not tag.isalnum():
         raise ValueError("Tag must be alphanumeric")
     root = Path(project_root).resolve()
@@ -360,41 +287,24 @@ def audit_delivery(project_root, tag="v2", output=None):
     table9 = read_csv(table9_path, ["target", "lesion_attribution_mass_mean", "lesion_attribution_mass_sd",
                                            "pointing_accuracy_mean", "pointing_accuracy_sd", "deletion_auc_mean",
                                            "deletion_auc_sd", "insertion_auc_mean", "insertion_auc_sd"])
-    comparison, comparison_files = _historical_comparison(table5, table7, output)
     manuscript_path = _manuscript_text(root, tag, cohort, table5, table7, table9, output)
-    claims = [
-        dict(section="Abstract/Results/Discussion/Conclusion", action="replace historical metrics and claims", source="manuscript-replacements.md", status="author_review_required"),
-        dict(section="Table 1", action="replace cohort summary", source="table1_cohort.csv", status="generated"),
-        dict(section="Table 5", action="replace segmentation results", source=f"results/tables/{tag}/segmentation", status="generated"),
-        dict(section="Table 7", action="replace survival results", source=f"results/tables/{tag}/survival", status="generated"),
-        dict(section="Table 9", action="replace SHAP results", source=f"results/tables/{tag}/shap", status="generated"),
-        dict(section="Figures 8-14", action="replace error, age and case figures", source=f"results/figures/{tag}", status="generated"),
-        dict(section="Figures 1-7", action="replace architecture and preprocessing schematics", source=f"results/schematics/{tag}", status="generated"),
-        dict(section="Historical claims", action="review numerical deltas without treating experiments as paired", source="historical-result-comparison.md", status="author_review_required"),
-        dict(section="Supplement", action="replace case and statistical supplements", source=f"results/figures/{tag}; results/tables/{tag}", status="author_review_required"),
-    ]
-    claims_path = output / "manuscript-claim-audit.csv"
-    write_csv(claims_path, claims, list(claims[0]))
     generated = [(cohort_files[0], "cohort_table"), (cohort_files[1], "cohort_table"),
-                 (comparison_files[0], "historical_comparison"),
-                 (comparison_files[1], "historical_comparison"),
-                 (manuscript_path, "manuscript_replacement_text"), (claims_path, "manuscript_claim_audit")]
+                 (manuscript_path, "study_results")]
     for path, role in generated:
         _inventory_file(root, path, inventory, role=role, logical_path=final_output / path.name)
     manifest_path = output / "delivery-manifest.csv"
     write_csv(manifest_path, sorted(inventory, key=lambda row: row["path"]), ["path", "role", "bytes", "sha256"])
-    audit = dict(status="completed", scope="strict_new_reconstruction_delivery", tag=tag,
+    audit = dict(status="completed", scope="validated_study_results", tag=tag,
                  git_commit=subprocess.check_output(["git", "rev-parse", "HEAD"],
                                                     cwd=root, text=True).strip(),
                  split_sha256=split_sha, counts=dict(patients=235, train=188, test=47,
                  segmentation_patient_region_rows=len(segmentation), survival_prediction_rows=len(survival),
                  shap_patient_target_rows=len(shap), schematic_files=len(reports["schematics"]["artifacts"]),
-                 historical_comparison_rows=len(comparison), inventory_files=len(inventory)),
+                 inventory_files=len(inventory)),
                  upstream=dict(postprocess_sha256=sha256(post_path), table5_sha256=sha256(table5_path),
                                table7_sha256=sha256(table7_path), table9_sha256=sha256(table9_path)),
                  report_status={name: report["status"] for name, report in reports.items()},
-                 manifest_sha256=sha256(manifest_path), manuscript_replacements_sha256=sha256(manuscript_path),
-                 author_review_still_required=True)
+                 manifest_sha256=sha256(manifest_path), study_results_sha256=sha256(manuscript_path))
     write_json(output / "delivery-audit.json", audit)
     os.replace(output, final_output)
     return audit

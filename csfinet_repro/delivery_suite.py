@@ -28,7 +28,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--project-root", required=True)
     parser.add_argument("--postprocess-suite", required=True)
-    parser.add_argument("--tag", default="v2")
+    parser.add_argument("--tag", default="study")
     parser.add_argument("--poll-seconds", type=int, default=60)
     args = parser.parse_args()
     if not args.tag.isalnum() or args.poll_seconds < 10:

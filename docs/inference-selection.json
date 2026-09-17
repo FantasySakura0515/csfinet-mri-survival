@@ -1,7 +1,7 @@
 {
   "status": "completed",
   "scope": "inference_variant_decision_on_38_validation_patients_before_test",
-  "tag": "v2",
+  "tag": "study",
   "adopted": "tta",
   "rule": "Adopt the non-raw variant with the highest mean validation WT Dice averaged over both models, provided it is non-inferior to raw for each model; ties prefer the simpler variant (earlier in the VARIANTS order); otherwise keep raw.",
   "raw_cross_model_mean_WT_dice": 0.819621933303051,

@@ -1,6 +1,5 @@
 """Independent, read-only viewer for locally supplied CSFINet research artifacts.
 
-This release viewer is newly implemented; it does not import the legacy viewers.
 No patient data, images, predictions or weights are downloaded by this application.
 """
 
@@ -103,7 +102,7 @@ def panel(background, title, mask=None, signed=None):
 def main():
     st.set_page_config(page_title="CSFINet research viewer", layout="wide")
     st.title("CSFINet MRI and survival research viewer")
-    st.caption("Raw v2 segmentation · fixed-weight v2-mask survival · precomputed CSFINet GradientSHAP")
+    st.caption("MRI segmentation · survival prediction · CSFINet GradientSHAP")
     st.info("Research outputs only. Survival estimates and attribution maps are not clinical advice.")
     cohort = table("data/manifests/cohort/patients.csv", ["patient_id", "split"])
     if cohort is None:
@@ -130,9 +129,9 @@ def main():
     if fields:
         st.dataframe(pd.DataFrame([row[fields].to_dict()]), hide_index=True)
     st.subheader("Survival estimates (days)")
-    predictions = table("results/survival/v2mask-fixed/survival_predictions.csv", ["patient_id", "model", "y_pred"])
+    predictions = table("results/survival/survival-heldout/survival_predictions.csv", ["patient_id", "model", "y_pred"])
     if predictions is None:
-        st.info("Current v2-mask survival predictions are not present locally.")
+        st.info("Survival predictions are not present locally.")
     else:
         available = predictions[predictions["patient_id"] == patient]
         output = []
@@ -146,10 +145,10 @@ def main():
                     entry["Absolute error (days)"] = f"{float(item['absolute_error']):.3f}"
             output.append(entry)
         st.dataframe(pd.DataFrame(output), hide_index=True)
-        st.caption("Source: results/survival/v2mask-fixed/survival_predictions.csv. Changing the segmentation display does not change the survival inputs, which use CSFINet masks.")
+        st.caption("Survival inputs use raw CSFINet whole-tumor masks and masked MRI. Changing the segmentation display does not change these inputs.")
     scores = []
     for model in ("csfinet", "unet"):
-        metrics = table(f"results/segmentation/{model}-test-v2/segmentation_patient_metrics.csv", ["patient_id", "region", "dice"])
+        metrics = table(f"results/segmentation/{model}-test-study/segmentation_patient_metrics.csv", ["patient_id", "region", "dice"])
         if metrics is not None:
             selected = metrics[(metrics["patient_id"] == patient) & (metrics["region"] == "WT")]
             if len(selected) == 1:
@@ -163,7 +162,7 @@ def main():
     masks = {"Ground truth": volume(nifti(raw, f"{patient}_seg"))}
     for label in models:
         key = "csfinet" if label == "CSFINet" else "unet"
-        directory = ROOT / "artifacts/segmentation" / f"{key}-test-v2" / patient
+        directory = ROOT / "artifacts/segmentation" / f"{key}-test-study" / patient
         masks[label] = volume(nifti(directory, f"{patient}_{key}_prediction"))
     columns = st.columns(len(masks))
     for column, (label, values) in zip(columns, masks.items()):
@@ -176,7 +175,7 @@ def main():
     st.caption("These attributions explain CSFINet, including when U-Net is displayed above. Exact saved slices only; positive contributions are red and negative contributions blue. Each signed four-modality sum is independently scaled to [-1, 1].")
     for column, target in zip(st.columns(2), ("ground_truth_WT_region", "predicted_WT_region")):
         with column:
-            path = ROOT / "artifacts/explainability/v2" / patient / f"{target}.npz"
+            path = ROOT / "artifacts/explainability/study" / patient / f"{target}.npz"
             if not path.is_file():
                 st.info(f"No local attribution archive: {target}.")
                 continue

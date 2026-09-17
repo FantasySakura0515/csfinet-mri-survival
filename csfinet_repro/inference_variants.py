@@ -238,7 +238,7 @@ def _check_run(run, phase, model_name, config_path, patient_csv, checkpoint, key
             and run.get(key) == sha256(checkpoint))
 
 
-def validate_variants(config_path, patient_csv, root, runs_root, output, tag="v2", seed=20260914,
+def validate_variants(config_path, patient_csv, root, runs_root, output, tag="study", seed=20260914,
                       n_resamples=10000, calibration_patients=30):
     config = json.loads(Path(config_path).read_text(encoding="utf-8"))
     slice_batch = config["segmentation"]["slice_batch"]
@@ -323,7 +323,7 @@ def _raw_dice(results_root, model_name, tag):
 
 
 def evaluate_test_variants(config_path, patient_csv, root, runs_root, results_root, artifacts_root, decision_path,
-                           output, tag="v2", seed=20260914, n_resamples=10000):
+                           output, tag="study", seed=20260914, n_resamples=10000):
     decision = json.loads(Path(decision_path).read_text(encoding="utf-8"))
     if (decision.get("status") != "completed" or decision.get("config_sha256") != sha256(config_path)
             or decision.get("split_sha256") != sha256(patient_csv) or decision.get("adopted") not in VARIANTS):

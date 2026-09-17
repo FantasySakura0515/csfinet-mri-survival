@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# After the v2.1 CSFINet refit and its single test inference complete: 47-patient
-# Gradient SHAP, cumulative parameter randomization and Table 9 for the v2.1 model.
-# Usage: TAG=v2 CONFIG=configs/reconstruction-v21.json bash scripts/run_v2_shap.sh <project_root> <python> <raw_root>
+# After the CSFINet refit and its single test inference complete: 47-patient
+# Gradient SHAP, cumulative parameter randomization and Table 9 for the trained model.
+# Usage: TAG=study CONFIG=configs/segmentation.json bash scripts/run_shap.sh <project_root> <python> <raw_root>
 set -euo pipefail
 root="${1:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 python_bin="${2:-$root/.venv/bin/python}"
 raw="${3:-$root/data/raw/brats2020-nifti}"
-tag="${TAG:-v2}"; config="${CONFIG:-configs/reconstruction-v21.json}"
+tag="${TAG:-study}"; config="${CONFIG:-configs/segmentation.json}"
 patients="data/manifests/cohort/patients.csv"; analysis="configs/analysis.json"
 cd "$root"
 manifest="results/segmentation/csfinet-test-${tag}/inference-manifest.json"
@@ -31,4 +31,4 @@ if [[ ! -f "results/tables/${tag}/shap/table9.json" ]]; then
     --segmentation "results/segmentation/csfinet-test-${tag}/segmentation_patient_metrics.csv" \
     --randomization "$randomization" --output "results/tables/${tag}/shap"
 fi
-echo "V2_SHAP_DONE $(date --iso-8601=seconds)"
+echo "STUDY_SHAP_DONE $(date --iso-8601=seconds)"

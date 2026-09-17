@@ -1,4 +1,4 @@
-"""Training options, checkpoint resume, and the standalone v2 configuration."""
+"""Training options, checkpoint resume, and the standalone study configuration."""
 
 import copy
 import io
@@ -200,15 +200,15 @@ def test_epoch_learning_rate_warmup_and_cosine_endpoints():
     assert epoch_learning_rate(1.0, 11, 11, schedule) == pytest.approx(0.1)  # final fraction at max_epochs
     rates = [epoch_learning_rate(1.0, epoch, 11, schedule) for epoch in range(3, 12)]
     assert all(a >= b for a, b in zip(rates, rates[1:]))
-    v2 = {"kind": "cosine", "warmup_epochs": 1, "final_fraction": 0.05}
-    assert epoch_learning_rate(4e-4, 1, 30, v2) == pytest.approx(4e-4)
-    assert epoch_learning_rate(4e-4, 2, 30, v2) == pytest.approx(4e-4)
-    assert epoch_learning_rate(4e-4, 30, 30, v2) == pytest.approx(2e-5)
+    study = {"kind": "cosine", "warmup_epochs": 1, "final_fraction": 0.05}
+    assert epoch_learning_rate(4e-4, 1, 30, study) == pytest.approx(4e-4)
+    assert epoch_learning_rate(4e-4, 2, 30, study) == pytest.approx(4e-4)
+    assert epoch_learning_rate(4e-4, 30, 30, study) == pytest.approx(2e-5)
     for bad in ({"kind": "linear"}, {"kind": "cosine", "warmup_epochs": 30}, {"kind": "cosine", "final_fraction": 2}):
         with pytest.raises(ValueError):
             epoch_learning_rate(4e-4, 1, 30, bad)
     with pytest.raises(ValueError):
-        epoch_learning_rate(4e-4, 0, 30, v2)
+        epoch_learning_rate(4e-4, 0, 30, study)
 
 
 def test_restoring_checkpointed_rng_replays_an_augmented_per_slice_batch_epoch():
@@ -257,14 +257,14 @@ def test_checkpoint_payload_adds_pending_stats_only_when_given():
     assert payload["pending_stats"] == {"optimizer_steps": 8, "skipped_updates": 0}
 
 
-def test_completed_v2_config_matches_the_frozen_cohort_and_declared_training_options():
-    config = json.loads((ROOT / "configs/reconstruction-v21.json").read_text(encoding="utf-8"))
+def test_completed_study_config_matches_the_frozen_cohort_and_declared_training_options():
+    config = json.loads((ROOT / "configs/segmentation.json").read_text(encoding="utf-8"))
     frozen = json.loads((ROOT / "data/splits/identity.json").read_text(encoding="utf-8"))
     assert config["seed"] == frozen["seed"]
     assert config["split"] == {"test_patients": frozen["test"],
                                "validation_patients": frozen["validation"],
                                "validation_seed": frozen["validation_seed"]}
-    survival = json.loads((ROOT / "configs/survival-v2.json").read_text(encoding="utf-8"))
+    survival = json.loads((ROOT / "configs/survival.json").read_text(encoding="utf-8"))
     for key in ("nifti", "normalization"):
         assert config[key] == survival[key]
     settings = config["segmentation"]

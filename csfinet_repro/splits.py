@@ -1,4 +1,4 @@
-"""New patient split, explicitly not a recovered historical split."""
+"""Patient-level study partition and cohort summaries."""
 
 import json
 from pathlib import Path
@@ -40,7 +40,7 @@ def create_split(source, config_path, output):
         raise FileExistsError(f"Frozen split already exists: {target}; use a new protocol directory for changes")
     write_csv(target, rows, list(rows[0]))
     (output / "split-config.json").write_bytes(Path(config_path).read_bytes())
-    report = dict(protocol=config["protocol"], historical_recovery=False, seed=config["seed"],
+    report = dict(protocol=config["protocol"], patient_disjoint=True, seed=config["seed"],
                   **config["split"], train_patients=188, development_train_patients=150,
                   rng="numpy.random.default_rng/PCG64", numpy_version=np.__version__,
                   patient_csv_sha256=sha256(target), config_sha256=sha256(config_path),
@@ -55,7 +55,7 @@ def summarize_cohort(patient_csv, output):
     if len(rows) != 235 or len({r["patient_id"] for r in rows}) != 235:
         raise ValueError("Expected 235 unique patients")
     groups = {"all": rows, **{split: [r for r in rows if r["split"] == split] for split in ("train", "test")}}
-    report = dict(kind="new_cohort_description_not_historical_table", split_sha256=sha256(patient_csv), groups={})
+    report = dict(kind="cohort_summary", split_sha256=sha256(patient_csv), groups={})
     for name, group in groups.items():
         report["groups"][name] = dict(n=len(group), age=descriptive(float(r["age"]) for r in group),
                                       survival_days=descriptive(float(r["survival_days"]) for r in group),

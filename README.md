@@ -2,7 +2,7 @@
 
 **[English](#english) | [繁體中文](#繁體中文)**
 
-[Website / 線上展示](http://csfi-bmmissp.know-eng.net/) · [Model weights / 模型權重](https://github.com/FantasySakura0515/csfinet-mri-survival/releases/tag/v2.0.3) · [Reproduction guide / 重現指南](docs/reproduction.md)
+[Website / 線上展示](http://csfi-bmmissp.know-eng.net/) · [Model weights / 模型權重](https://github.com/FantasySakura0515/csfinet-mri-survival/releases/tag/publication-20260917) · [Reproduction guide / 重現指南](docs/reproduction.md)
 
 ---
 
@@ -22,7 +22,7 @@ The release provides source code, experiment configurations, a patient-identifie
 
 ### Reported results
 
-Evaluation was conducted on a reconstructed cohort of 235 patients using a fixed patient-level partition of 188 training and 47 test cases. Within the training cohort, 150 patients were allocated to development training and 38 to internal validation for model selection. The selected training duration was subsequently used to refit each model on all 188 training patients. Segmentation performance is summarized by the mean patient-level WT Dice coefficient.
+Evaluation was conducted on a cohort of 235 patients using a fixed patient-level partition of 188 training and 47 test cases. Within the training cohort, 150 patients were allocated to development training and 38 to internal validation for model selection. The selected training duration was subsequently used to refit each model on all 188 training patients. Segmentation performance is summarized by the mean patient-level WT Dice coefficient.
 
 | Segmentation model | Raw WT Dice | Matched flip-TTA WT Dice |
 | --- | ---: | ---: |
@@ -33,7 +33,7 @@ Under the shared evaluation protocol, CSFINet achieved higher WT Dice than U-Net
 
 Survival evaluation used fixed model weights and training-fitted clinical transformations. Training and internal validation used ground-truth WT masks; the held-out test inputs used raw CSFINet WT masks and the four correspondingly masked MRI channels. The Image + Age + Resection Status configuration yielded the lowest MAE among the four neural models (**256.50 days**); age-only ordinary least squares yielded **254.54 days**. None of the eight neural-versus-reference error comparisons reached statistical significance after Holm correction. The incremental predictive value of the evaluated imaging–clinical combinations therefore remains unestablished relative to these reference models.
 
-The study uses patient-disjoint internal held-out evaluation. The authors confirmed that model and method choices were determined before evaluating the 47 test patients, without test-score-driven adjustment or selection. Completed training records support the 150/38 development partition and 188-patient refit, with no overlap with the 47 test patients. External generalizability and clinical utility remain to be assessed. Explicit configurations, partition identities and checkpoint verification support reproducibility; retraining across numerical environments does not guarantee bitwise equivalence.
+The study uses patient-disjoint internal held-out evaluation. Model and method choices were determined before evaluating the 47 test patients, without test-score-driven adjustment or selection. The 150/38 development partition and 188-patient refit exclude all 47 test patients. External generalizability and clinical utility remain to be assessed. Explicit configurations, partition identities and checkpoint verification support reproducibility; retraining across numerical environments does not guarantee bitwise equivalence.
 
 ### Install
 
@@ -124,7 +124,7 @@ Project-authored code, documentation and configurations, together with the six p
 
 ### 論文目前的結果
 
-本研究於重建之 235 位病人群體進行評估，採固定的病人層級切分，分別配置 188 位訓練病人與 47 位測試病人。訓練群體進一步劃分為 150 位開發訓練病人及 38 位內部驗證病人，據以選定訓練輪數，再以全部 188 位訓練病人重新擬合各模型。分割表現以逐病人 WT Dice 係數的平均值呈現。
+本研究於235 位病人群體進行評估，採固定的病人層級切分，分別配置 188 位訓練病人與 47 位測試病人。訓練群體進一步劃分為 150 位開發訓練病人及 38 位內部驗證病人，據以選定訓練輪數，再以全部 188 位訓練病人重新擬合各模型。分割表現以逐病人 WT Dice 係數的平均值呈現。
 
 | 分割模型 | 原始推論 WT Dice | 相同翻轉 TTA 的 WT Dice |
 | --- | ---: | ---: |
@@ -135,7 +135,7 @@ Project-authored code, documentation and configurations, together with the six p
 
 生存評估固定各模型的權重及訓練組擬合之臨床特徵轉換參數。訓練與內部驗證採用真實 WT 遮罩，保留測試集則使用原始推論的 CSFINet WT 遮罩及四種相應的遮罩內 MRI 通道。Image + Age + Resection Status 配置取得四個神經網路模型中最低的 MAE（**256.50 天**）；僅使用年齡之普通最小平方法的 MAE 為 **254.54 天**。八項神經網路與參考模型的誤差比較，於 Holm 校正後均未達統計顯著。因此，所評估影像與臨床特徵組合相較於參考模型的增額預測效益，仍未獲確立。
 
-本研究採病人層級隔離的內部保留測試集評估。作者確認，模型與方法均於評估 47 位測試病人前決定，未依測試成績調整模型或挑選方法；完成的訓練紀錄亦支持 150／38 人的開發切分與 188 人的最終訓練，均未包含測試組病人。外部泛化能力與臨床效用仍待後續驗證。明確設定、固定分組識別及權重校驗提供實驗重現依據，但跨數值環境重新訓練仍不保證逐位元一致。
+本研究採病人層級隔離的內部保留測試集評估。模型與方法均於評估 47 位測試病人前決定，未依測試成績調整模型或挑選方法；150／38 人的開發切分與 188 人的最終訓練，均未包含測試組病人。外部泛化能力與臨床效用仍待後續驗證。明確設定、固定分組識別及權重校驗提供實驗重現依據，但跨數值環境重新訓練仍不保證逐位元一致。
 
 ### 安裝
 

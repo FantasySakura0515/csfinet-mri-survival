@@ -16,7 +16,7 @@ def test_residual_bins_cover_boundaries_and_isolate_zero(value, expected):
     assert residual_bin(value) == expected
 
 
-def test_case_selection_retains_historical_test_case_and_is_deterministic():
+def test_case_selection_retains_illustrative_case_and_is_deterministic():
     rows = [dict(patient_id=f"p{i}", absolute_error=i) for i in range(10)]
     rows[4]["patient_id"] = "BraTS20_Training_199"
     selected = select_cases(list(reversed(rows)))

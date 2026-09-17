@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# After both pre-registered v2 refits and their single test inferences complete:
-# Table 5 (v2), then the declared inference variants for v2 decided on the 38
+# After both pre-registered study refits and their single test inferences complete:
+# Table 5 (study), then the declared inference variants for study decided on the 38
 # validation patients and evaluated once on the frozen 47 test patients.
-# Usage: bash scripts/run_v2_finish.sh <project_root> <python> <raw_root>
+# Usage: bash scripts/run_finish.sh <project_root> <python> <raw_root>
 set -euo pipefail
 root="${1:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 python_bin="${2:-$root/.venv/bin/python}"
 raw="${3:-$root/data/raw/brats2020-nifti}"
-tag="${TAG:-v2}"; config="${CONFIG:-configs/reconstruction-v21.json}"; patients="data/manifests/cohort/patients.csv"
+tag="${TAG:-study}"; config="${CONFIG:-configs/segmentation.json}"; patients="data/manifests/cohort/patients.csv"
 cd "$root"
 for model in csfinet unet; do
   manifest="results/segmentation/${model}-test-${tag}/inference-manifest.json"
@@ -30,4 +30,4 @@ if [[ ! -f "results/inference-variants/${tag}/test/manifest.json" ]]; then
     --decision "results/inference-variants/${tag}/validation/decision.json" \
     --output "results/inference-variants/${tag}/test" --tag "$tag"
 fi
-echo "V2_FINISH_DONE $(date --iso-8601=seconds)"
+echo "STUDY_FINISH_DONE $(date --iso-8601=seconds)"

@@ -28,11 +28,11 @@ def validate_completed_run(run_path, variant, phase, config_sha, split_sha, cach
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", default="configs/survival-v2.json")
+    parser.add_argument("--config", default="configs/survival.json")
     parser.add_argument("--patients", default="data/manifests/cohort/patients.csv")
     parser.add_argument("--cache", required=True)
     parser.add_argument("--runs", default="runs")
-    parser.add_argument("--tag", default="v2mri")
+    parser.add_argument("--tag", default="survival")
     args = parser.parse_args()
     if not args.tag.isalnum():
         raise ValueError("Tag must be alphanumeric")

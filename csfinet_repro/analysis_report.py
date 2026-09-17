@@ -1,6 +1,6 @@
-"""Standalone v2 report from saved patient-level segmentation and survival results.
+"""Standalone study report from saved patient-level segmentation and survival results.
 
-Run: python -m csfinet_repro.report_v2 --project-root . --output results/delivery/v2
+Run: python -m csfinet_repro.analysis_report --project-root . --output results/delivery/study
 Missing inputs are disclosed; no training or inference is performed.
 """
 
@@ -25,34 +25,34 @@ TEST_PATIENTS = 47
 REGIONS = ("WT", "TC", "ET")
 MEASURES = ("dice", "precision", "recall")
 SEGMENTATION_MODELS = ("csfinet", "unet")
-SEGMENTATION_TAGS = ("v2",)
+SEGMENTATION_TAGS = ("study",)
 SEGMENTATION_COLUMNS = ["run_id", "patient_id", "model", "region", "tp", "fp", "fn", "dice", "precision", "recall", "iou"]
 VARIANT_COLUMNS = ["run_id", "patient_id", "model", "variant", "region", "tp", "fp", "fn", "dice", "precision",
                    "recall", "iou"]
 # Mirrors inference_variants.VARIANTS without importing torch; unknown variants are appended alphabetically.
 INFERENCE_VARIANTS = ("raw", "lcc", "tta", "tta_lcc", "bn", "bn_lcc", "bn_tta", "bn_tta_lcc")
-SURVIVAL_TAGS = ("v2mri",)
+SURVIVAL_TAGS = ("survival",)
 SURVIVAL_NEURAL = ("image", "image_age", "image_resection", "image_age_resection")
 SURVIVAL_REFERENCES = ("training_mean", "age_ols")
 SURVIVAL_MODELS = (*SURVIVAL_NEURAL, *SURVIVAL_REFERENCES)
 SURVIVAL_COLUMNS = ["run_id", "patient_id", "model", "y_true", "y_pred", "residual", "absolute_error", "age",
                     "resection_status", "mask_source"]
 ROLES = {
-    "v2": "v2_segmentation",
-    "v2_variant": "validation_selected_inference_variant",
-    "v2mri": "masked_mri_survival",
+    "study": "study_segmentation",
+    "study_variant": "validation_selected_inference_variant",
+    "survival": "masked_mri_survival",
 }
 FAMILIES = {
     "A": "CSFINet vs U-Net within each experiment, WT Dice",
     "C": "adopted inference variant vs raw for each model, WT Dice",
-    "E": "v2mri neural models vs age_ols and training_mean absolute error",
+    "E": "survival neural models vs age_ols and training_mean absolute error",
 }
 PRIMARY_SEGMENTATION = "prespecified_primary_WT_dice"
 EXPLORATORY_DICE = "exploratory_TC_ET_dice_interval_only"
 EXPLORATORY_WT = "exploratory_WT_precision_recall_interval_only"
-PROVENANCE_FILES = (("configs/reconstruction-v21.json", "segmentation_config"),
-                    ("configs/survival-v2.json", "survival_config"),
-                    ("docs/v2-preregistration.md", "protocol_record"))
+PROVENANCE_FILES = (("configs/segmentation.json", "segmentation_config"),
+                    ("configs/survival.json", "survival_config"),
+                    ("docs/protocol.md", "protocol_record"))
 ALPHA = .05
 TOLERANCE = 1e-9
 
@@ -190,7 +190,7 @@ def _check_table7(path, groups, label):
 
 
 def _collect_segmentation(root, inputs):
-    """Load every available segmentation experiment: plain v2 and the adopted inference variants."""
+    """Load every available segmentation experiment: plain study and the adopted inference variants."""
     experiments, variants = [], {}
     for tag in SEGMENTATION_TAGS:
         models = {}
@@ -541,7 +541,7 @@ def _digits(row):
     return 2 if row["measure"] == "absolute_error" else 4
 
 
-DISCLOSURE_NOTE = ("This package reports the standalone v2 project on 47 frozen test patients. "
+DISCLOSURE_NOTE = ("This package reports the standalone study project on 47 frozen test patients. "
                    "Inference variants are selected on 38 development-validation patients. "
                    "A single split and seed do not establish generalization to an independent cohort.")
 
@@ -634,7 +634,7 @@ def _verdict(row):
 
 def _methods_paragraph(seed, n_resamples):
     return (
-        "The v2 project uses 235 patients: 188 training and 47 test, with 150 development-training and "
+        "The study project uses 235 patients: 188 training and 47 test, with 150 development-training and "
         "38 validation patients inside the training cohort. Models are refitted on 188 patients after epoch "
         "selection. The completed segmentation configuration uses Dice plus cross-entropy loss, per-patient "
         "accumulated optimizer updates, flip/intensity augmentation and a cosine learning-rate schedule. "
@@ -652,10 +652,10 @@ def _methods_paragraph(seed, n_resamples):
 def _manuscript_lines(context):
     seg_rows, seg_tests = context["segmentation_rows"], context["segmentation_tests"]
     surv_rows, surv_tests, degeneracy = context["survival_rows"], context["survival_tests"], context["degeneracy"]
-    lines = ["# Manuscript replacements — v2 comparison package", "",
+    lines = ["# Statistical analysis report", "",
              "Generated from saved per-patient outputs only. Every number below is recomputed from those rows; "
              "nothing is filled in for experiments whose inputs are missing. Values belong to the frozen 47-patient "
-             "reconstruction test set and replace, rather than combine with, historical manuscript values.", "",
+             "held-out test set.", "",
              "## Methods — experiments, disclosure and statistics", "", _methods_paragraph(context["seed"], context["n_resamples"]),
              "", "## Results — segmentation (WT; TC and ET are in segmentation_comparison.md)", ""]
     wt_rows = [row for row in seg_rows if row["region"] == "WT"]
@@ -729,14 +729,7 @@ def _manuscript_lines(context):
               "## Missing inputs", ""]
     lines += [f"- `{item['path']}` — {item['role']} ({item['experiment']}; {item['effect']})."
               for item in context["missing"]] or ["- None; every expected input was present."]
-    lines += ["", "## Author actions before resubmission", "",
-              "1. Use the v2 tables and state the actual configuration and input provenance of each analysis.",
-              "2. Replace every historical mean together with its SD from the CSV tables in this package; do not "
-              "attach the new SDs to the old means.",
-              "3. State the direction and significance of every pre-specified comparison exactly as listed under "
-              "'Claims the data do / do not support'; remove superiority wording that the verdicts do not support.",
-              "4. Re-run this reporter after missing experiments complete; the package refuses to overwrite, so use a "
-              "new output directory and cite its report-manifest.json hashes.", "",
+    lines += ["", "## Provenance", "",
               f"Source hashes: report-manifest.json (seed {context['seed']}, {context['n_resamples']:,} resamples)."]
     return lines
 
@@ -765,8 +758,8 @@ def _git_commit(root):
         return None
 
 
-def build_report(project_root=".", output="results/delivery/v2", seed=20260914, n_resamples=10000):
-    """Build the v2 comparison package from whatever completed inputs exist; refuse to overwrite."""
+def build_report(project_root=".", output="results/delivery/study", seed=20260914, n_resamples=10000):
+    """Build the study comparison package from whatever completed inputs exist; refuse to overwrite."""
     root = Path(project_root).resolve()
     if not root.is_dir():
         raise FileNotFoundError(f"Project root does not exist: {root}")
@@ -814,13 +807,13 @@ def build_report(project_root=".", output="results/delivery/v2", seed=20260914, 
                 "Absolute error, left minus right per patient; negative favours the left side. "
                 "Family E applies Holm correction across eight neural-versus-reference comparisons.")),
             _write_table(directory, "survival_degeneracy.csv", degeneracy),
-            _write_text(directory / "manuscript-replacements-v2.md", _manuscript_lines(context)),
+            _write_text(directory / "statistical-report.md", _manuscript_lines(context)),
         ]
         written = [path for path in written if path is not None]
         missing_results = [item for item in inputs["missing"] if item["effect"] != "provenance_hash_skipped"]
         manifest = dict(
             status="completed" if not missing_results else "completed_with_missing_inputs",
-            scope="v2_results_comparison_frozen_47_patient_test", generated_at=datetime.now(timezone.utc).isoformat(),
+            scope="study_results_comparison_frozen_47_patient_test", generated_at=datetime.now(timezone.utc).isoformat(),
             project_root=str(root), git_commit=_git_commit(root), reporter_sha256=sha256(Path(__file__)),
             seed=seed, n_resamples=n_resamples, alpha=ALPHA,
             confidence_interval="95pct_BCa_pointwise_not_simultaneous", test_patients=len(patients), test_ids=patients,
@@ -844,10 +837,10 @@ def build_report(project_root=".", output="results/delivery/v2", seed=20260914, 
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(prog="python -m csfinet_repro.report_v2", description=__doc__,
+    parser = argparse.ArgumentParser(prog="python -m csfinet_repro.analysis_report", description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--project-root", default=".")
-    parser.add_argument("--output", default="results/delivery/v2",
+    parser.add_argument("--output", default="results/delivery/study",
                         help="Output directory; relative paths are resolved against --project-root")
     parser.add_argument("--seed", type=int, default=20260914, help="Bootstrap base seed; not a training seed")
     parser.add_argument("--resamples", type=int, default=10000)

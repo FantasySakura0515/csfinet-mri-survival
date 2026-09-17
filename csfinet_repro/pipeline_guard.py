@@ -48,7 +48,7 @@ def _spawn(command, worktree, stdout_path, stderr_path):
 
 
 def guard(project_root, postprocess_worktree, delivery_worktree, postprocess_pid,
-          delivery_pid, tag="v2", interval=30, max_restarts=3):
+          delivery_pid, tag="study", interval=30, max_restarts=3):
     root = Path(project_root).resolve()
     post_worktree, delivery_worktree = Path(postprocess_worktree).resolve(), Path(delivery_worktree).resolve()
     if not tag.isalnum() or interval < 5 or max_restarts < 1:
@@ -60,7 +60,7 @@ def guard(project_root, postprocess_worktree, delivery_worktree, postprocess_pid
     state_path, lock_path = runs / f"pipeline-guard-{tag}.json", runs / f"pipeline-guard-{tag}.lock"
     patients = root / "data" / "manifests" / "cohort" / "patients.csv"
     raw = root / "data" / "raw" / "brats2020-nifti"
-    config = post_worktree / "configs" / "reconstruction-v21.json"
+    config = post_worktree / "configs" / "segmentation.json"
     expected = {
         "postprocess_commit": _commit(post_worktree),
         "delivery_commit": _commit(delivery_worktree),
@@ -122,8 +122,8 @@ def guard(project_root, postprocess_worktree, delivery_worktree, postprocess_pid
                          "reason": "suite_unfinished_and_watcher_pid_not_alive"}
                 events.append(event)
                 processes[name] = _spawn(
-                    commands[name], worktrees[name], logs / f"{name}-suite-v2.stdout.log",
-                    logs / f"{name}-suite-v2.stderr.log",
+                    commands[name], worktrees[name], logs / f"{name}-suite-study.stdout.log",
+                    logs / f"{name}-suite-study.stderr.log",
                 )
                 record["processes"][name] = processes[name]
                 event["pid"] = processes[name]
@@ -152,7 +152,7 @@ def main():
     parser.add_argument("--delivery-worktree", required=True)
     parser.add_argument("--postprocess-pid", required=True, type=int)
     parser.add_argument("--delivery-pid", required=True, type=int)
-    parser.add_argument("--tag", default="v2")
+    parser.add_argument("--tag", default="study")
     parser.add_argument("--interval", type=int, default=30)
     parser.add_argument("--max-restarts", type=int, default=3)
     guard(**vars(parser.parse_args()))

@@ -4,7 +4,6 @@ import pytest
 
 from csfinet_repro.delivery import (
     _cohort_table,
-    _historical_comparison,
     _inventory_file,
     _mean_sd,
     _validate_schematics,
@@ -49,35 +48,12 @@ def test_delivery_cohort_table_uses_patient_sample_sd_and_explicit_na(tmp_path):
     assert _mean_sd({"x_mean": "", "x_sd": ""}, "x") == "NA"
 
 
-def test_historical_comparison_keeps_old_and_reconstructed_experiments_separate(tmp_path):
-    table5 = []
-    for model, base in (("unet", 0.5), ("csfinet", 0.8)):
-        table5.append({"model": model, "region": "WT", "dice_mean": str(base),
-                       "precision_mean": str(base + 0.1), "recall_mean": str(base - 0.1)})
-    table7 = []
-    for index, model in enumerate(("image", "image_age", "image_resection", "image_age_resection")):
-        table7.append({"model": model, "mae": str(300 + index), "rmse": str(400 + index),
-                       "median_ae": str(200 + index), "pearson": str(0.2 + index / 10),
-                       "spearman": str(0.3 + index / 10)})
-    rows, files = _historical_comparison(table5, table7, tmp_path)
-    assert len(rows) == 26
-    assert {row["scope"] for row in rows} == {"segmentation_WT", "survival"}
-    assert all(row["interpretation"] == "different_experiment_not_a_paired_comparison" for row in rows)
-    assert all(Path(path).is_file() for path in files)
-    unet_dice = next(row for row in rows if row["model"] == "unet" and row["metric"] == "dice")
-    assert unet_dice["historical_value"] == 0.463
-    assert unet_dice["reconstructed_value"] == 0.5
-    image_pearson = next(row for row in rows if row["model"] == "image" and row["metric"] == "pearson_r")
-    assert image_pearson["historical_value"] == 0.273
-    assert image_pearson["reconstructed_value"] == 0.2
-
-
 def test_delivery_requires_all_fourteen_lineage_matched_schematics(tmp_path):
     root = tmp_path
-    config = root / "configs" / "reconstruction-v21.json"
+    config = root / "configs" / "segmentation.json"
     config.parent.mkdir()
     config.write_text("{}\n", encoding="utf-8")
-    directory = root / "results" / "schematics" / "v2"
+    directory = root / "results" / "schematics" / "study"
     directory.mkdir(parents=True)
     artifacts = []
     for index in range(14):
@@ -90,11 +66,11 @@ def test_delivery_requires_all_fourteen_lineage_matched_schematics(tmp_path):
         "config_sha256": sha256(config), "split_sha256": split_sha, "artifacts": artifacts,
     })
     inventory = []
-    manifest = _validate_schematics(root, "v2", split_sha, inventory)
+    manifest = _validate_schematics(root, "study", split_sha, inventory)
     assert manifest["status"] == "completed"
     assert len(inventory) == 15
     assert sum(row["role"] == "manuscript_schematic" for row in inventory) == 14
     manifest["split_sha256"] = "wrong"
     write_json(directory / "manifest.json", manifest)
     with pytest.raises(ValueError, match="lineage"):
-        _validate_schematics(root, "v2", split_sha, [])
+        _validate_schematics(root, "study", split_sha, [])

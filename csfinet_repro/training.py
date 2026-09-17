@@ -143,7 +143,7 @@ def train_patient(model, optimizer, scaler, images, targets, slice_batch, device
     ``per_patient``: exactly one optimizer update for all slices; each slice batch's loss is
     weighted by its slice count (the final short batch included) so the update equals one
     full-patient gradient. A non-finite loss or gradient raises and no update is performed.
-    ``per_slice_batch`` (v2): one update per slice batch on the unweighted batch loss; the return
+    ``per_slice_batch`` (study): one update per slice batch on the unweighted batch loss; the return
     value is the slice-count-weighted mean loss. A non-finite loss still raises; a batch whose
     unscaled gradients are non-finite skips its update and lets ``GradScaler`` halve the scale
     (standard dynamic loss scaling), because roughly eight times more steps per epoch would

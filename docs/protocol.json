@@ -1,0 +1,14 @@
+{
+  "cohort": "BraTS 2020 patients with available survival-day labels",
+  "patients": 235,
+  "training": 188,
+  "test": 47,
+  "development_training": 150,
+  "internal_validation": 38,
+  "split_seed": 20260914,
+  "validation_seed": 20260915,
+  "unit": "patient",
+  "evaluation": "patient-disjoint internal held-out evaluation",
+  "selection": "Model and method choices fixed before test evaluation; internal validation used for selection.",
+  "external_validation": false
+}

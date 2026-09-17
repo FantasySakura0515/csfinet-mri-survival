@@ -72,13 +72,13 @@ def main():
         from csfinet_repro.inference_variants import predict_labels, FLIPS_TTA
         from csfinet_repro.metrics import region_metrics
         from csfinet_repro.segmentation_evaluation import save_prediction
-        config_path = ROOT / 'configs/reconstruction-v21.json'
+        config_path = ROOT / 'configs/segmentation.json'
         config = js(config_path)
         batch = args.slice_batch or config['segmentation']['slice_batch']
         combined = []
         for name in ('csfinet', 'unet'):
             info = models_by_name[name]
-            directory = results / f'segmentation/{name}-test-v2'
+            directory = results / f'segmentation/{name}-test-study'
             identity = dict(**common, model=name, config_sha256=sha256(config_path),
                             checkpoint_sha256=info['checkpoint_sha256'], slice_batch=batch)
             start(directory, identity)
@@ -105,11 +105,11 @@ def main():
                     for variant in ('raw', 'tta'):
                         pred = (original_labels(predict_patient(model, images, batch, device)) if variant == 'raw'
                                 else predict_labels(model, images, batch, device, flips=FLIPS_TTA))
-                        rel = f'segmentation/{name}-test-v2/{pid}/{pid}_{name}_prediction.nii.gz' if variant == 'raw' else f'segmentation/{name}-tta-v2/{pid}/{pid}_{name}_prediction.nii.gz'
+                        rel = f'segmentation/{name}-test-study/{pid}/{pid}_{name}_prediction.nii.gz' if variant == 'raw' else f'segmentation/{name}-tta-study/{pid}/{pid}_{name}_prediction.nii.gz'
                         file_hash = save_prediction(args.raw_root / pid / f'{pid}_seg.nii.gz', pred, artifacts / rel)
                         files.append(dict(path=rel, sha256=file_hash))
                         for region, measures in region_metrics(truth, pred).items():
-                            entry = dict(run_id=f'{name}-refit-v2', patient_id=pid, model=name, region=region, **measures)
+                            entry = dict(run_id=f'{name}-refit-study', patient_id=pid, model=name, region=region, **measures)
                             (rr if variant == 'raw' else tr).append(entry)
                         if variant == 'raw':
                             record = dict(patient_id=pid, relative_path=rel.removeprefix('segmentation/'),
@@ -120,7 +120,7 @@ def main():
                 del images, target, truth
                 print(f'{name}: raw + matched TTA {i}/{len(tests)} {pid}', flush=True)
             write_csv(directory / 'segmentation_patient_metrics.csv', raw_rows, list(raw_rows[0]))
-            tta_dir = results / f'inference-variants/v2/test/per-variant'
+            tta_dir = results / f'inference-variants/study/test/per-variant'
             write_csv(tta_dir / f'{name}_tta_patient_metrics.csv', tta_rows, list(tta_rows[0]))
             combined.extend(dict(r, variant=v) for v, rows in [('raw', raw_rows), ('tta', tta_rows)] for r in rows)
             write_json(directory / 'inference-manifest.json', dict(status='completed', **identity,
@@ -129,7 +129,7 @@ def main():
             del model
             if device.type == 'cuda':
                 torch.cuda.empty_cache()
-        write_csv(results / 'inference-variants/v2/test/test_patient_metrics.csv', combined, list(combined[0]))
+        write_csv(results / 'inference-variants/study/test/test_patient_metrics.csv', combined, list(combined[0]))
         if not args.limit:
             from summarize_results import summarize
             summarize(results, results / 'publication')
@@ -138,23 +138,23 @@ def main():
         from csfinet_repro.models import SurvivalNet
         from csfinet_repro.survival import VARIANTS, clinical_features
         from csfinet_repro.survival_mri import build_mri_volume, load_wt
-        config_path = ROOT / 'configs/survival-v2.json'
+        config_path = ROOT / 'configs/survival.json'
         config = js(config_path)['survival']
-        mask_dir = artifacts / 'segmentation/csfinet-test-v2'
-        seg_manifest_path = results / 'segmentation/csfinet-test-v2/inference-manifest.json'
+        mask_dir = artifacts / 'segmentation/csfinet-test-study'
+        seg_manifest_path = results / 'segmentation/csfinet-test-study/inference-manifest.json'
         seg_manifest = js(seg_manifest_path)
         if (seg_manifest.get('status') != 'completed' or seg_manifest.get('model') != 'csfinet'
                 or seg_manifest.get('checkpoint_sha256') != models_by_name['csfinet']['checkpoint_sha256']
                 or seg_manifest.get('split_sha256') != common['split_sha256']
                 or seg_manifest.get('test_ids') != common['test_ids']
                 or seg_manifest.get('inputs') != common['inputs']):
-            raise ValueError('Expected raw v2 CSFINet masks from the released checkpoint')
+            raise ValueError('Expected raw study CSFINet masks from the released checkpoint')
         mask_hashes = {r['patient_id']: r['prediction_sha256'] for r in seg_manifest['artifacts']}
         for row in tests:
             pid = row['patient_id']
             if sha256(mask_dir / pid / f'{pid}_csfinet_prediction.nii.gz') != mask_hashes[pid]:
                 raise ValueError(f'Segmentation mask hash mismatch: {pid}')
-        directory = results / 'survival/v2mask-fixed'
+        directory = results / 'survival/survival-heldout'
         start(directory, dict(**common, config_sha256=sha256(config_path), masks=mask_hashes,
                               weights={v: models_by_name[v]['checkpoint_sha256'] for v in VARIANTS}))
         models, fitted = {}, {}
@@ -184,9 +184,9 @@ def main():
                 pred.update(training_mean=float(y.mean()), age_ols=float(coef[0] + coef[1] * float(row['age'])))
                 for variant, value in pred.items():
                     truth = float(row['survival_days'])
-                    output.append(dict(run_id='v2mask-fixed', patient_id=pid, model=variant, y_true=truth, y_pred=value,
+                    output.append(dict(run_id='survival-heldout', patient_id=pid, model=variant, y_true=truth, y_pred=value,
                                        residual=value-truth, absolute_error=abs(value-truth), age=row['age'], resection_status=row['resection_status'],
-                                       mask_source='training_only_clinical_reference' if variant in ('training_mean', 'age_ols') else 'predicted_CSFINet_WT_v2_raw'))
+                                       mask_source='training_only_clinical_reference' if variant in ('training_mean', 'age_ols') else 'predicted_CSFINet_WT_study_raw'))
                 del images, volume, x
                 print(f'Survival {i}/{len(tests)} {pid}', flush=True)
         write_csv(directory / 'survival_predictions.csv', output, list(output[0]))
@@ -194,8 +194,8 @@ def main():
                    scope_note='Patient-disjoint internal held-out evaluation; fixed survival weights and training-fitted clinical transformations; raw CSFINet masks.',
                    segmentation_manifest_sha256=sha256(seg_manifest_path), predictions_sha256=sha256(directory / 'survival_predictions.csv')))
         if not args.limit:
-            from csfinet_repro import report_v2 as report
-            experiments = [dict(name='v2mask-fixed', role='internal_heldout_fixed_model_evaluation', groups=report.load_survival_predictions(directory / 'survival_predictions.csv'))]
+            from csfinet_repro import analysis_report as report
+            experiments = [dict(name='survival-heldout', role='internal_heldout_fixed_model_evaluation', groups=report.load_survival_predictions(directory / 'survival_predictions.csv'))]
             seeds = itertools.count(20260916)
             summary = report._survival_rows(experiments, seeds, 10000)
             write_csv(directory / 'survival_comparison.csv', summary, list(summary[0]))
@@ -208,17 +208,17 @@ def main():
 
     if args.stage in ('shap', 'all'):
         from csfinet_repro.explainability import explain_test, parameter_randomization, summarize_table9
-        config = ROOT / 'configs/reconstruction-v21.json'
+        config = ROOT / 'configs/segmentation.json'
         analysis = ROOT / 'configs/analysis.json'
-        run = ROOT / 'runs/csfinet-refit-v2'
-        out = results / 'explainability/v2'
+        run = ROOT / 'runs/csfinet-refit-study'
+        out = results / 'explainability/study'
         explain_test(config, analysis, patients_path, args.raw_root, run,
-                     artifacts / 'segmentation/csfinet-test-v2', results / 'segmentation/csfinet-test-v2/inference-manifest.json',
-                     out, artifacts / 'explainability/v2', resume=args.resume, device_override=str(device))
+                     artifacts / 'segmentation/csfinet-test-study', results / 'segmentation/csfinet-test-study/inference-manifest.json',
+                     out, artifacts / 'explainability/study', resume=args.resume, device_override=str(device))
         parameter_randomization(config, analysis, patients_path, args.raw_root, run,
                                 out / 'parameter_randomization.csv', resume=args.resume, device_override=str(device))
-        summarize_table9(out / 'shap_patient_metrics.csv', results / 'segmentation/csfinet-test-v2/segmentation_patient_metrics.csv',
-                         out / 'parameter_randomization.csv', results / 'tables/v2/shap')
+        summarize_table9(out / 'shap_patient_metrics.csv', results / 'segmentation/csfinet-test-study/segmentation_patient_metrics.csv',
+                         out / 'parameter_randomization.csv', results / 'tables/study/shap')
     print('Completed. Smoke outputs are not paper results.' if args.limit else 'Completed released-model evaluation.')
 
 

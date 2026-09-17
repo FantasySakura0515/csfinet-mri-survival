@@ -1,6 +1,5 @@
 {
-  "protocol": "brats2020-paper-reconstruction-v21",
-  "historical_recovery": false,
+  "protocol": "brats2020-segmentation",
   "seed": 20260914,
   "split": {
     "test_patients": 47,

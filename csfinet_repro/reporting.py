@@ -258,7 +258,7 @@ def generate_figures(patient_csv, raw_root, csfinet_predictions, shap_artifacts,
         figure.savefig(path, dpi=200)
         plt.close(figure)
         artifacts.append(path)
-        case_rows.append(dict(patient_id=patient, selection_rule="historical_199_if_test_else_error_quantiles",
+        case_rows.append(dict(patient_id=patient, selection_rule="illustrative_199_if_test_else_error_quantiles",
                               slice_z=z, observed_days=case["y_true"], predicted_days=case["y_pred"],
                               absolute_error=case["absolute_error"]))
         for model in ALL_MODELS:

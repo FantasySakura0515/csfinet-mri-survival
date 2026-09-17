@@ -18,4 +18,4 @@ Dataset access, use and citation remain governed by the original providers' term
 
 ## Cite the work
 
-Cite the accompanying manuscript by its unchanged title and authors above. A publication DOI is not asserted in this release. For the exact software version, cite the repository and its `v2.0.2` release. Cite the original CSFINet architecture and the BraTS dataset sources separately when relevant.
+Cite the accompanying manuscript by its unchanged title and authors above. A publication DOI is not asserted in this release. For the exact software version, cite the repository and its publication archive. Cite the original CSFINet architecture and the BraTS dataset sources separately when relevant.

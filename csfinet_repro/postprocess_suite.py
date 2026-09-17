@@ -33,7 +33,7 @@ def run(command, label):
 def main():
     global _STATE_PATH
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", default="configs/reconstruction-v21.json")
+    parser.add_argument("--config", default="configs/segmentation.json")
     parser.add_argument("--patients", required=True)
     parser.add_argument("--root", required=True)
     parser.add_argument("--runs", required=True)
@@ -41,7 +41,7 @@ def main():
     parser.add_argument("--artifacts", required=True)
     parser.add_argument("--cache", required=True)
     parser.add_argument("--segmentation-suite", required=True)
-    parser.add_argument("--tag", default="v2")
+    parser.add_argument("--tag", default="study")
     parser.add_argument("--poll-seconds", type=int, default=60)
     args = parser.parse_args()
     if not args.tag.isalnum() or args.poll_seconds < 10:

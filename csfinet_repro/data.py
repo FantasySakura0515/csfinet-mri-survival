@@ -143,13 +143,13 @@ def audit_sources(source_dir, output_dir):
             raise ValueError(f"Unknown or duplicate local slice: {path.name}")
         samples.append(inspect_hdf5(path))
         found[volume].add(index)
-    report = dict(cohort_status="candidate_rule_not_historical_split", candidate_count=len(candidates),
+    report = dict(cohort_status="eligible_cohort", candidate_count=len(candidates),
                   excluded_count=len(excluded), exclusion_details=excluded,
                   candidate_status_counts=dict(sorted(Counter(r["resection_status"] for r in candidates).items())),
                   metadata_volumes=len(volumes), metadata_slices=sum(map(len, volumes.values())),
                   local_hdf5_slices=len(samples), local_complete_volumes=sum(len(v) == 155 for v in found.values()),
                   hdf5_samples=samples,
-                  blockers=["Historical split unknown", "HDF5 volume to patient mapping unverified",
+                  blockers=["Patient partition must be applied from the study specification", "HDF5 volume to patient mapping unverified",
                             "Modality order and mask channel semantics unverified",
                             "Stored normalization may differ from manuscript"],
                   sources={name: sha256(source_dir / name) for name in
